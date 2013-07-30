@@ -3,6 +3,8 @@
 
 #include <iostream>
 #include <string>
+#include <memory>
+#include <time.h>
 
 namespace wot
 {
