@@ -18,6 +18,8 @@ public:
     std::string get_path() const;
     std::string get_method() const;
 
+    bool errors() const;
+
 private:
     int find_line_containing(const std::string& value, const std::vector<std::string>& request_lines) const;
 

@@ -7,26 +7,44 @@ request::request(const std::string& r)
     wot::log::info("Started request");
 
     error = 0;
+    method_ = "";
+    path_ = "";
+    host_ = "";
+
     std::vector<std::string> request_lines = wot::utils::split_string(r, '\n');
 
-    if(request_lines.size() > 0)
+    if(request_lines.size() == 0)
     {
-        std::vector<std::string> first_line = wot::utils::split_string(request_lines.at(0), ' ');
-        if(first_line.size() >= 3)
-        {
-            if(first_line.at(0) == "GET")
-            {   
-                method_ = "GET";
-            }
-            path_ = wot::utils::trim(first_line.at(1));
-        }
+        error = 1;
+        return;
+    }
+    
+    std::vector<std::string> first_line = wot::utils::split_string(request_lines.at(0), ' ');
 
-        int host_index = find_line_containing("Host:", request_lines);
-        std::vector<std::string> host_line = wot::utils::split_string(request_lines.at(host_index), ' ');
-        if(host_line.size() >= 2)
-        {   
-            host_ = wot::utils::trim(host_line.at(1));
-        }
+    if(first_line.size() < 3)
+    {
+        error = 1;
+        return;
+    }
+
+    if(first_line.at(0) == "GET")
+    {   
+        method_ = "GET";
+    }
+    
+    path_ = wot::utils::trim(first_line.at(1));
+    
+    int host_index = find_line_containing("Host:", request_lines);
+    std::vector<std::string> host_line = wot::utils::split_string(request_lines.at(host_index), ' ');
+    if(host_line.size() >= 2)
+    {   
+        host_ = wot::utils::trim(host_line.at(1));
+    }
+
+    if(method_.size() == 0 || path_.size() == 0 || method_.size() == 0)
+    {
+        error = 1;
+        return;
     }
 
     wot::log::info("Request parsed: " + method_ + " " + host_ + "" + path_);
@@ -45,6 +63,11 @@ std::string request::get_path() const
 std::string request::get_method() const
 {   
     return method_;
+}
+
+bool request::errors() const
+{
+    return error != 0;
 }
 
 int request::find_line_containing(const std::string& value, const std::vector<std::string>& request_lines) const

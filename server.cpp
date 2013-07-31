@@ -65,33 +65,43 @@ public:
     {
         try
         {
+            wot::log::info("Waiting for a request.");
+
             buffer_size = 1024;
             buffer = new char[buffer_size];
             bzero(buffer, buffer_size);
 
             newsockfd = accept(sockfd, (sockaddr*)&cli_addr, &clilen);
             bzero(buffer, buffer_size);
+            
+            wot::log::info("-----------------");
+            wot::log::info("Request accepted.");
 
             read(newsockfd, buffer, buffer_size - 1);
 
             std::string bufferStr(buffer);
 
+            wot::log::info("Packet:\n" + bufferStr);
+
             wot::request client_request(bufferStr);
-            
-            std::string response;
 
-            if( (client_request.get_host() == "www.cznp.com" || client_request.get_host() == "cznp.com") && client_request.get_method() == "GET" && client_request.get_path() == "/")
+            if(client_request.errors() == false)
             {
-                response = Response(wot::utils::file_to_string("/home/cznp/index.html"), "text/html");
-            }
-            else
-            {
-                response = Response(wot::utils::file_to_string("/home/cznp/404.html"), "text/html");
+                std::string response;
+
+                if( (client_request.get_host() == "www.cznp.com" || client_request.get_host() == "cznp.com") && client_request.get_method() == "GET" && client_request.get_path() == "/")
+                {
+                    response = Response(wot::utils::file_to_string("/home/cznp/index.html"), "text/html");
+                }
+                else
+                {
+                    response = Response(wot::utils::file_to_string("/home/cznp/404.html"), "text/html");
+                }
+
+                write(newsockfd, response.c_str(), response.size());
             }
 
-            write(newsockfd, response.c_str(), response.size());
             close(newsockfd);
-
             delete [] buffer;
         }
         catch(...)
