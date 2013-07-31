@@ -6,7 +6,10 @@
 #include <unistd.h>
 #include <sys/types.h> 
 #include <sys/socket.h>
+#include <net/route.h>
+#include <net/if.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 
 #include <iostream>
 #include <fstream>
@@ -39,7 +42,9 @@ class Server
 public:
     Server()
     {
-        wot::log::info("Starting Server.");
+        log = std::unique_ptr<wot::log>(new wot::log(std::cout));
+        log->write(wot::log::type::info) << "Starting Server." << std::endl;
+
         portno = 80;
         sockfd = socket(AF_INET, SOCK_STREAM, 0);
         int optval = 1;
@@ -51,21 +56,21 @@ public:
         serv_addr.sin_port = htons(portno);
 
         bind(sockfd, (sockaddr*)&serv_addr, sizeof(serv_addr));
-        wot::log::info("Socket Bound");
+        log->write(wot::log::type::info) << "Socket Bound." << std::endl;
 
         listen(sockfd, 5);
-        wot::log::info("Listening to socket");
+        log->write(wot::log::type::info) << "Listening to socket." << std::endl;
 
         clilen = sizeof(cli_addr);
 
-        wot::log::info("Server Started.");
+        log->write(wot::log::type::info) << "Server Started." << std::endl;
     }
 
     void handle()
     {
         try
         {
-            wot::log::info("Waiting for a request.");
+            log->write(wot::log::type::info) << "Waiting for a request." << std::endl;
 
             buffer_size = 1024;
             buffer = new char[buffer_size];
@@ -74,14 +79,17 @@ public:
             newsockfd = accept(sockfd, (sockaddr*)&cli_addr, &clilen);
             bzero(buffer, buffer_size);
             
-            wot::log::info("-----------------");
-            wot::log::info("Request accepted.");
+            log->write(wot::log::type::info) << "-------------" << std::endl;
+
+            char inet_str[INET_ADDRSTRLEN];
+            inet_ntop(cli_addr.sin_family, &(cli_addr.sin_addr), inet_str, INET_ADDRSTRLEN);
+            log->write(wot::log::type::info) << "Request accepted from: " << inet_str << std::endl;
 
             read(newsockfd, buffer, buffer_size - 1);
 
             std::string bufferStr(buffer);
 
-            wot::log::info("Packet:\n" + bufferStr);
+            log->write(wot::log::type::info) << "Packet: " << std::endl << bufferStr << std::endl;
 
             wot::request client_request(bufferStr);
 
@@ -132,6 +140,8 @@ private:
 
     char* buffer;
     size_t buffer_size;
+
+    std::unique_ptr<wot::log> log;
 };
 
 int main(int argc, char *argv[])

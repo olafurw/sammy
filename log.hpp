@@ -3,17 +3,29 @@
 
 #include <iostream>
 #include <string>
+#include <fstream>
 #include <memory>
 #include <time.h>
 
 namespace wot
 {
-namespace log
+class log
 {
-    void info(const std::string& message);
-    void warning(const std::string& message);
-    void error(const std::string& message);
-}
+public:
+    enum class type : unsigned int
+    {
+        info = 1,
+        warning = 2,
+        error = 3
+    };
+
+    log(std::ostream& output);
+
+    std::ostream& write(wot::log::type log_type);
+
+private:
+    std::ostream* out_;
+};
 }
 
 #endif

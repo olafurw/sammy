@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 
 #include "utils.hpp"
 #include "log.hpp"
@@ -26,7 +27,9 @@ private:
     std::string method_;
     std::string path_;
     std::string host_;
-    int error;
+    int error_;
+
+    std::unique_ptr<wot::log> log_;
 };
 }
 

@@ -2,8 +2,6 @@
 
 namespace wot
 {
-namespace log
-{
     std::unique_ptr<std::string> current_time()
     {
         time_t rawtime;
@@ -20,22 +18,33 @@ namespace log
         return result;
     }
 
-    void info(const std::string& message)
+    log::log(std::ostream& out)
     {
-        std::unique_ptr<std::string> ctime = current_time();
-        std::cout << "[INFO] [" << *ctime << "] " << message << std::endl << std::flush;
+        out_ = &out;
     }
 
-    void warning(const std::string& message)
+    std::ostream& log::write(wot::log::type log_type)
     {
-        std::unique_ptr<std::string> ctime = current_time();
-        std::cout << "[WARNING] [" << *ctime << "] " << message << std::endl << std::flush;
-    }
+        std::string type_string = "";
 
-    void error(const std::string& message)
-    {
+        switch(log_type)
+        {
+            case type::info:
+                type_string = "INFO";
+            break;
+            case type::warning:
+                type_string = "WARNING";
+            break;
+            case type::error:
+                type_string = "ERROR";
+            break;
+            default:
+                type_string = "UNKNOWN";
+            break;
+        }
+
         std::unique_ptr<std::string> ctime = current_time();
-        std::cout << "[ERROR] [" << *ctime << "] " << message << std::endl << std::flush;
+        *out_ << "[" << type_string << "] " << *ctime << " " << std::flush;
+        return *out_;
     }
-}
 }
