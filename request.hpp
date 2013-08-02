@@ -23,6 +23,7 @@ public:
 
 private:
     int find_line_containing(const std::string& value, const std::vector<std::string>& request_lines) const;
+    int find_line_starting_with(const std::string& value, const std::vector<std::string>& request_lines) const;
 
     std::string m_method;
     std::string m_path;

@@ -17,6 +17,7 @@
 #include "utils.hpp"
 #include "response.hpp"
 #include "request.hpp"
+#include "config.hpp"
 
 namespace wot
 {
@@ -40,6 +41,7 @@ private:
     size_t m_buffer_size;
 
     std::unique_ptr<wot::log> m_log;
+    std::unique_ptr<wot::domains> m_domains;
 };
 }
 

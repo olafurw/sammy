@@ -8,6 +8,15 @@ server::server()
     m_log = std::unique_ptr<wot::log>(new wot::log(std::cout));
     m_log->write(wot::log::type::info) << "Starting Server." << std::endl;
 
+    m_domains = std::unique_ptr<wot::domains>(new wot::domains());
+    if(m_domains->errors())
+    {
+        m_log->write(wot::log::type::info) << "Error loading allowed domains config." << std::endl;
+        exit(1);
+    }
+
+    m_log->write(wot::log::type::info) << "Allowed domains config loaded." << std::endl;
+
     m_portno = 80;
     m_buffer_size = 1024;
     m_sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -56,7 +65,7 @@ void server::handle()
 
         wot::request client_request(buffer_str);
 
-        if(client_request.errors() == false)
+        if(client_request.errors() == false && m_domains->is_allowed(client_request.get_host()))
         {
             std::string response;
 
@@ -70,6 +79,10 @@ void server::handle()
             }
 
             write(m_newsockfd, response.c_str(), response.size());
+        }
+        else
+        {
+            m_log->write(wot::log::type::warning) << "Domain: " << client_request.get_host() << " not in allowed list!" << std::endl;
         }
 
         close(m_newsockfd);

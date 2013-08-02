@@ -35,7 +35,7 @@ request::request(const std::string& r)
     
     m_path = wot::utils::trim(first_line.at(1));
     
-    int m_hostindex = find_line_containing("Host:", request_lines);
+    int m_hostindex = find_line_starting_with("Host:", request_lines);
     std::vector<std::string> m_hostline = wot::utils::split_string(request_lines.at(m_hostindex), ' ');
     if(m_hostline.size() >= 2)
     {   
@@ -49,7 +49,6 @@ request::request(const std::string& r)
     }
 
     m_log->write(wot::log::type::info) << "Request parsed: " << m_method << " " << m_host << " " << m_path << std::endl;
-    //wot::log::info("Request parsed: " + m_method + " " + m_host + "" + m_path);
 }
 
 std::string request::get_host() const
@@ -77,11 +76,24 @@ int request::find_line_containing(const std::string& value, const std::vector<st
     for(unsigned int i = 0; i < request_lines.size(); ++i)
     {   
         if(request_lines.at(i).find(value) != std::string::npos)
-        {   
+        {
             return i;
         }   
     }   
 
     return -1; 
+}
+
+int request::find_line_starting_with(const std::string& value, const std::vector<std::string>& request_lines) const
+{
+    for(unsigned int i = 0; i < request_lines.size(); ++i)
+    {
+        if(request_lines.at(i).find(value) == 0)
+        {
+            return i;
+        }
+    }
+
+    return -1;
 }
 }

@@ -16,7 +16,8 @@ public:
     {
         info = 1,
         warning = 2,
-        error = 3
+        error = 3,
+        debug = 4
     };
 
     log(std::ostream& output);
