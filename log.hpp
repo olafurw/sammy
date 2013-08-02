@@ -24,7 +24,7 @@ public:
     std::ostream& write(wot::log::type log_type);
 
 private:
-    std::ostream* out_;
+    std::ostream* m_out;
 };
 }
 

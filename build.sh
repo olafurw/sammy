@@ -1,1 +1,1 @@
-clang++ -std=c++11 -g server.cpp utils.cpp log.cpp request.cpp -o server;
+clang++ -std=c++11 -g main.cpp utils.cpp log.cpp request.cpp response.cpp server.cpp -o server;

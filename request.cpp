@@ -4,19 +4,19 @@ namespace wot
 {
 request::request(const std::string& r)
 {
-    log_ = std::unique_ptr<wot::log>(new wot::log(std::cout));
-    log_->write(wot::log::type::info) << "Started request." << std::endl;    
+    m_log = std::unique_ptr<wot::log>(new wot::log(std::cout));
+    m_log->write(wot::log::type::info) << "Started request." << std::endl;
 
-    error_ = 0;
-    method_ = "";
-    path_ = "";
-    host_ = "";
+    m_error = 0;
+    m_method = "";
+    m_path = "";
+    m_host = "";
 
     std::vector<std::string> request_lines = wot::utils::split_string(r, '\n');
 
     if(request_lines.size() == 0)
     {
-        error_ = 1;
+        m_error = 1;
         return;
     }
     
@@ -24,52 +24,52 @@ request::request(const std::string& r)
 
     if(first_line.size() < 3)
     {
-        error_ = 1;
+        m_error = 1;
         return;
     }
 
     if(first_line.at(0) == "GET")
     {   
-        method_ = "GET";
+        m_method = "GET";
     }
     
-    path_ = wot::utils::trim(first_line.at(1));
+    m_path = wot::utils::trim(first_line.at(1));
     
-    int host_index = find_line_containing("Host:", request_lines);
-    std::vector<std::string> host_line = wot::utils::split_string(request_lines.at(host_index), ' ');
-    if(host_line.size() >= 2)
+    int m_hostindex = find_line_containing("Host:", request_lines);
+    std::vector<std::string> m_hostline = wot::utils::split_string(request_lines.at(m_hostindex), ' ');
+    if(m_hostline.size() >= 2)
     {   
-        host_ = wot::utils::trim(host_line.at(1));
+        m_host = wot::utils::trim(m_hostline.at(1));
     }
 
-    if(method_.size() == 0 || path_.size() == 0 || method_.size() == 0)
+    if(m_method.size() == 0 || m_path.size() == 0 || m_method.size() == 0)
     {
-        error_ = 1;
+        m_error = 1;
         return;
     }
 
-    log_->write(wot::log::type::info) << "Request parsed: " << method_ << " " << host_ << " " << path_ << std::endl;    
-    //wot::log::info("Request parsed: " + method_ + " " + host_ + "" + path_);
+    m_log->write(wot::log::type::info) << "Request parsed: " << m_method << " " << m_host << " " << m_path << std::endl;
+    //wot::log::info("Request parsed: " + m_method + " " + m_host + "" + m_path);
 }
 
 std::string request::get_host() const
 {   
-    return host_;
+    return m_host;
 }
 
 std::string request::get_path() const
 {   
-    return path_;
+    return m_path;
 }
 
 std::string request::get_method() const
 {   
-    return method_;
+    return m_method;
 }
 
 bool request::errors() const
 {
-    return error_ != 0;
+    return m_error != 0;
 }
 
 int request::find_line_containing(const std::string& value, const std::vector<std::string>& request_lines) const

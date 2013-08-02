@@ -20,7 +20,7 @@ namespace wot
 
     log::log(std::ostream& out)
     {
-        out_ = &out;
+        m_out = &out;
     }
 
     std::ostream& log::write(wot::log::type log_type)
@@ -44,7 +44,7 @@ namespace wot
         }
 
         std::unique_ptr<std::string> ctime = current_time();
-        *out_ << "[" << type_string << "] " << *ctime << " " << std::flush;
-        return *out_;
+        *m_out << "[" << type_string << "] " << *ctime << " " << std::flush;
+        return *m_out;
     }
 }

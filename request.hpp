@@ -24,12 +24,12 @@ public:
 private:
     int find_line_containing(const std::string& value, const std::vector<std::string>& request_lines) const;
 
-    std::string method_;
-    std::string path_;
-    std::string host_;
-    int error_;
+    std::string m_method;
+    std::string m_path;
+    std::string m_host;
+    int m_error;
 
-    std::unique_ptr<wot::log> log_;
+    std::unique_ptr<wot::log> m_log;
 };
 }
 

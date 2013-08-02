@@ -1,155 +1,95 @@
-/* A simple server in the internet domain using TCP
- *    The port number is passed as an argument */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <sys/types.h> 
-#include <sys/socket.h>
-#include <net/route.h>
-#include <net/if.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
+#include "server.hpp"
 
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <vector>
-#include <locale>
-#include <functional>
-#include <algorithm>
-
-#include "utils.hpp"
-#include "log.hpp"
-#include "request.hpp"
-
-std::string Response(const std::string& message, const std::string& type)
+namespace wot
 {
-    std::stringstream ss;
-    ss << "HTTP/1.0 200 OK\n";
-    ss << "Server: tiaswot\n";
-    ss << "MIME-version: 1.0\n";
-    ss << "Content-type: " << type << "\n";
-    ss << "Last-Modified: Thu Jul 7 00:25:33 1994\n";
-    ss << "Content-Length: " << message.size() << "\n\n";
-    ss << message << "\n\n";
-   
-    return ss.str(); 
+
+server::server()
+{
+    m_log = std::unique_ptr<wot::log>(new wot::log(std::cout));
+    m_log->write(wot::log::type::info) << "Starting Server." << std::endl;
+
+    m_portno = 80;
+    m_buffer_size = 1024;
+    m_sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    int optval = 1;
+    setsockopt(m_sockfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
+
+    bzero((char*)&m_serv_addr, sizeof(m_serv_addr));
+    m_serv_addr.sin_family = AF_INET;
+    m_serv_addr.sin_addr.s_addr = INADDR_ANY;
+    m_serv_addr.sin_port = htons(m_portno);
+
+    bind(m_sockfd, (sockaddr*)&m_serv_addr, sizeof(m_serv_addr));
+    m_log->write(wot::log::type::info) << "Socket Bound." << std::endl;
+
+    listen(m_sockfd, 5);
+    m_log->write(wot::log::type::info) << "Listening to socket." << std::endl;
+
+    m_clilen = sizeof(m_cli_addr);
+
+    m_log->write(wot::log::type::info) << "Server Started." << std::endl;
 }
 
-class Server
+void server::handle()
 {
-public:
-    Server()
+    try
     {
-        log = std::unique_ptr<wot::log>(new wot::log(std::cout));
-        log->write(wot::log::type::info) << "Starting Server." << std::endl;
+        m_log->write(wot::log::type::info) << "Waiting for a request." << std::endl;
 
-        portno = 80;
-        sockfd = socket(AF_INET, SOCK_STREAM, 0);
-        int optval = 1;
-        setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
+        m_buffer = new char[m_buffer_size];
+        bzero(m_buffer, m_buffer_size);
 
-        bzero((char*)&serv_addr, sizeof(serv_addr));
-        serv_addr.sin_family = AF_INET;
-        serv_addr.sin_addr.s_addr = INADDR_ANY;
-        serv_addr.sin_port = htons(portno);
+        m_newsockfd = accept(m_sockfd, (sockaddr*)&m_cli_addr, &m_clilen);
+        bzero(m_buffer, m_buffer_size);
 
-        bind(sockfd, (sockaddr*)&serv_addr, sizeof(serv_addr));
-        log->write(wot::log::type::info) << "Socket Bound." << std::endl;
+        m_log->write(wot::log::type::info) << "-------------" << std::endl;
 
-        listen(sockfd, 5);
-        log->write(wot::log::type::info) << "Listening to socket." << std::endl;
+        char inet_str[INET_ADDRSTRLEN];
+        inet_ntop(m_cli_addr.sin_family, &(m_cli_addr.sin_addr), inet_str, INET_ADDRSTRLEN);
+        m_log->write(wot::log::type::info) << "Request accepted from: " << inet_str << std::endl;
 
-        clilen = sizeof(cli_addr);
+        read(m_newsockfd, m_buffer, m_buffer_size - 1);
 
-        log->write(wot::log::type::info) << "Server Started." << std::endl;
-    }
+        std::string buffer_str(m_buffer);
 
-    void handle()
-    {
-        try
+        m_log->write(wot::log::type::info) << "Packet: " << std::endl << buffer_str << std::endl;
+
+        wot::request client_request(buffer_str);
+
+        if(client_request.errors() == false)
         {
-            log->write(wot::log::type::info) << "Waiting for a request." << std::endl;
+            std::string response;
 
-            buffer_size = 1024;
-            buffer = new char[buffer_size];
-            bzero(buffer, buffer_size);
-
-            newsockfd = accept(sockfd, (sockaddr*)&cli_addr, &clilen);
-            bzero(buffer, buffer_size);
-            
-            log->write(wot::log::type::info) << "-------------" << std::endl;
-
-            char inet_str[INET_ADDRSTRLEN];
-            inet_ntop(cli_addr.sin_family, &(cli_addr.sin_addr), inet_str, INET_ADDRSTRLEN);
-            log->write(wot::log::type::info) << "Request accepted from: " << inet_str << std::endl;
-
-            read(newsockfd, buffer, buffer_size - 1);
-
-            std::string bufferStr(buffer);
-
-            log->write(wot::log::type::info) << "Packet: " << std::endl << bufferStr << std::endl;
-
-            wot::request client_request(bufferStr);
-
-            if(client_request.errors() == false)
+            if( (client_request.get_host() == "www.cznp.com" || client_request.get_host() == "cznp.com") && client_request.get_method() == "GET" && client_request.get_path() == "/")
             {
-                std::string response;
-
-                if( (client_request.get_host() == "www.cznp.com" || client_request.get_host() == "cznp.com") && client_request.get_method() == "GET" && client_request.get_path() == "/")
-                {
-                    response = Response(wot::utils::file_to_string("/home/cznp/index.html"), "text/html");
-                }
-                else
-                {
-                    response = Response(wot::utils::file_to_string("/home/cznp/404.html"), "text/html");
-                }
-
-                write(newsockfd, response.c_str(), response.size());
+                response = wot::response(wot::utils::file_to_string("/home/cznp/index.html"), "text/html");
+            }
+            else
+            {
+                response = wot::response(wot::utils::file_to_string("/home/cznp/404.html"), "text/html");
             }
 
-            close(newsockfd);
-            delete [] buffer;
+            write(m_newsockfd, response.c_str(), response.size());
         }
-        catch(...)
-        {
-            std::cout << buffer << std::endl;
-            close(newsockfd);
-            delete [] buffer;
-            return;
-        }
-    }
 
-    ~Server()
+        close(m_newsockfd);
+        delete [] m_buffer;
+    }
+    catch(...)
     {
-        close(newsockfd);
-        close(sockfd);
-
-        delete [] buffer;
+        std::cout << m_buffer << std::endl;
+        close(m_newsockfd);
+        delete [] m_buffer;
+        return;
     }
+}
 
-private:
-    int portno;
-    int sockfd;
-    int newsockfd;
-
-    socklen_t clilen;
-    sockaddr_in serv_addr;
-    sockaddr_in cli_addr;
-
-    char* buffer;
-    size_t buffer_size;
-
-    std::unique_ptr<wot::log> log;
-};
-
-int main(int argc, char *argv[])
+server::~server()
 {
-    Server server;
-    while(true)
-    {
-        server.handle();
-    }
-    return 0;
+    close(m_newsockfd);
+    close(m_sockfd);
+
+    delete [] m_buffer;
+}
+
 }
