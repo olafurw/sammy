@@ -4,11 +4,17 @@ namespace wot
 {
 domains::domains()
 {
+    m_error = 0;
     std::ifstream domain_file("config/allowed_domains.wl");
 
     std::string line;
     while(std::getline(domain_file, line))
     {
+        if(line.size() == 0)
+        {
+             break;
+        }
+
         std::stringstream ss(line);
         std::string domain_name;
         std::string domain_path;
@@ -16,9 +22,9 @@ domains::domains()
         if(!(ss >> domain_name >> domain_path))
         {
             m_error = 1;
-            return;
+            break;
         }
-
+       
         m_allowed_domains[domain_name] = domain_path;
     }
 }
