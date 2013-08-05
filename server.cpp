@@ -57,32 +57,39 @@ void server::handle()
         inet_ntop(m_cli_addr.sin_family, &(m_cli_addr.sin_addr), inet_str, INET_ADDRSTRLEN);
         m_log->write(wot::log::type::info) << "Request accepted from: " << inet_str << std::endl;
 
-        read(m_newsockfd, m_buffer, m_buffer_size - 1);
+        size_t read_result = read(m_newsockfd, m_buffer, m_buffer_size - 1);
 
-        std::string buffer_str(m_buffer);
+        if(read_result >= 1)
+        { 
+            std::string buffer_str(m_buffer);
+    
+            m_log->write(wot::log::type::info) << "Packet: " << std::endl << buffer_str << std::endl;
+    
+            wot::request client_request(buffer_str);
 
-        m_log->write(wot::log::type::info) << "Packet: " << std::endl << buffer_str << std::endl;
-
-        wot::request client_request(buffer_str);
-
-        if(client_request.errors() == false && m_domains->is_allowed(client_request.get_host()))
-        {
-            std::string response;
-
-            if( (client_request.get_host() == "www.cznp.com" || client_request.get_host() == "cznp.com") && client_request.get_method() == "GET" && client_request.get_path() == "/")
+            if(client_request.errors() == false && m_domains->is_allowed(client_request.get_host()))
             {
-                response = wot::response(wot::utils::file_to_string("/home/cznp/index.html"), "text/html");
+                std::string response;
+    
+                if( (client_request.get_host() == "www.cznp.com" || client_request.get_host() == "cznp.com") && client_request.get_method() == "GET" && client_request.get_path() == "/")
+                {
+                    response = wot::response(wot::utils::file_to_string("/home/cznp/index.html"), "text/html");
+                }
+                else
+                {
+                    response = wot::response(wot::utils::file_to_string("/home/cznp/404.html"), "text/html");
+                }
+    
+                write(m_newsockfd, response.c_str(), response.size());
             }
             else
             {
-                response = wot::response(wot::utils::file_to_string("/home/cznp/404.html"), "text/html");
+                m_log->write(wot::log::type::warning) << "Domain: " << client_request.get_host() << " not in allowed list!" << std::endl;
             }
-
-            write(m_newsockfd, response.c_str(), response.size());
         }
         else
         {
-            m_log->write(wot::log::type::warning) << "Domain: " << client_request.get_host() << " not in allowed list!" << std::endl;
+            m_log->write(wot::log::type::warning) << "Read returned: " << read_result << std::endl;
         }
 
         close(m_newsockfd);
