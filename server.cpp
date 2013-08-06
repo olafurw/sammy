@@ -67,19 +67,27 @@ void server::handle()
     
             wot::request client_request(buffer_str);
 
-            if(client_request.errors() == false && m_domains->is_allowed(client_request.get_host()))
+            if(client_request.errors() == false)
             {
                 std::string response;
-    
-                if( (client_request.get_host() == "www.cznp.com" || client_request.get_host() == "cznp.com") && client_request.get_method() == "GET" && client_request.get_path() == "/")
+                std::shared_ptr<domain> domain = m_domains->get_domain(client_request.get_host());
+
+                if(domain && domain->is_hostname(client_request.get_host()) && client_request.get_method() == "GET")
                 {
-                    response = wot::response(wot::utils::file_to_string("/home/cznp/index.html"), "text/html");
+                    wot::path path = domain->get_path(client_request.get_path());
+                    std::string location = domain->get_location();
+                    
+                    m_log->write(wot::log::type::info) << "Request: " << location << " - " << path.request << " - " << path.file << std::endl;
+
+                    if(path.request.size() > 0 && path.type == wot::path_type::plain)
+                    {
+                        std::string file_path = location + path.request + path.file;
+                        m_log->write(wot::log::type::info) << "Request for plain file: " << file_path << std::endl;
+
+                        response = wot::response(wot::utils::file_to_string(file_path.c_str()), "text_html");
+                    }
                 }
-                else
-                {
-                    response = wot::response(wot::utils::file_to_string("/home/cznp/404.html"), "text/html");
-                }
-    
+
                 write(m_newsockfd, response.c_str(), response.size());
             }
             else

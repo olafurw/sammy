@@ -5,6 +5,11 @@
 #include <fstream>
 #include <sstream>
 #include <map>
+#include <memory>
+
+#include "domain.hpp"
+#include "utils.hpp"
+#include "log.hpp"
 
 namespace wot
 {
@@ -13,11 +18,13 @@ class domains
 public:
     domains();
     bool errors();
-    bool is_allowed(const std::string& domain);
-    std::string path(const std::string& domain);
+
+    std::shared_ptr<domain> get_domain(const std::string& domain);
 
 private:
-    std::map<std::string, std::string> m_allowed_domains;
+    std::unique_ptr<wot::log> m_log;
+    std::map<std::string, std::shared_ptr<domain>> m_domains;
+
     int m_error;
 };
 }

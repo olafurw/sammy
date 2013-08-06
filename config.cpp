@@ -4,43 +4,81 @@ namespace wot
 {
 domains::domains()
 {
+    m_log = std::unique_ptr<wot::log>(new wot::log(std::cout));
     m_error = 0;
-    std::ifstream domain_file("config/allowed_domains.wl");
 
-    std::string line;
-    while(std::getline(domain_file, line))
+    std::ifstream domain_lists("config/domains.wl");
+    std::string domain_prefix;
+
+    while(std::getline(domain_lists, domain_prefix))
     {
-        if(line.size() == 0)
-        {
-             break;
-        }
+        std::shared_ptr<wot::domain> domain = std::make_shared<wot::domain>();
 
-        std::stringstream ss(line);
-        std::string domain_name;
-        std::string domain_path;
-
-        if(!(ss >> domain_name >> domain_path))
+        // Hostnames
+        std::ifstream domain_hostnames("config/" + domain_prefix + ".hostnames");
+        std::string hostname;
+        while(std::getline(domain_hostnames, hostname))
         {
-            m_error = 1;
-            break;
+            std::string trimmed_hostname = wot::utils::trim(hostname);
+
+            m_domains[trimmed_hostname] = domain;
+
+            domain->add_hostname(trimmed_hostname);
         }
-       
-        m_allowed_domains[domain_name] = domain_path;
+        domain_hostnames.close();
+
+        m_log->write(wot::log::type::info) << domain_prefix << " Hostname parsing complete." << std::endl;
+
+        // Location
+        std::ifstream domain_location("config/" + domain_prefix + ".location");
+        std::string location;
+        std::getline(domain_location, location);
+        domain->set_location(wot::utils::trim(location));
+        domain_location.close();
+
+        m_log->write(wot::log::type::info) << domain_prefix << " Location parsing complete." << std::endl;
+
+        // Paths
+        std::ifstream domain_paths("config/" + domain_prefix + ".paths");
+        std::string path_line;
+        while(std::getline(domain_paths, path_line))
+        {
+            std::stringstream path_ss(path_line);
+
+            wot::path path;
+            std::string path_type_text;
+
+            path_ss >> path.request;
+            path_ss >> path_type_text;
+            path_ss >> path.file;
+
+            if(path_type_text == "file")
+            {
+                path.type = wot::path_type::plain;
+            }
+            else
+            {
+                path.type = wot::path_type::unknown;
+            }
+
+            domain->add_path(path);
+        }
+        domain_paths.close();
+
+        m_log->write(wot::log::type::info) << domain_prefix << " Path parsing complete." << std::endl;
+        m_log->write(wot::log::type::info) << domain_prefix << " Config loaded." << std::endl;
     }
+
+    domain_lists.close();
+}
+
+std::shared_ptr<domain> domains::get_domain(const std::string& domain)
+{
+    return m_domains[domain];
 }
 
 bool domains::errors()
 {
     return m_error != 0;
-}
-
-bool domains::is_allowed(const std::string& domain)
-{
-    return m_allowed_domains.count(domain) == 1;
-}
-
-std::string domains::path(const std::string& domain)
-{
-    return m_allowed_domains[domain];
 }
 }
