@@ -72,56 +72,63 @@ void server::handle()
                 std::string response = "";
                 std::shared_ptr<domain> domain = m_domains->get_domain(client_request.get_host());
 
-                if(domain && domain->is_hostname(client_request.get_host()) && client_request.get_method() == "GET")
+                if(domain)
                 {
-                    wot::path path = domain->get_path(client_request.get_path());
-                    std::string location = domain->get_location();
-                    
-                    m_log->write(wot::log::type::info) << "Request: " << location << " - " << path.request << " - " << path.file << std::endl;
-
-                    if(path.request.size() > 0 && path.type == wot::path_type::plain)
+                    if(domain->is_hostname(client_request.get_host()) && client_request.get_method() == "GET")
                     {
-                        std::string file_path = location + "/" +  path.file;
-                        m_log->write(wot::log::type::info) << "Request for plain file: " << file_path << std::endl;
-
-                        response = wot::response(wot::utils::file_to_string(file_path.c_str()), "text/html");
-                    }
-                    
-                    if(path.request.size() > 0 && path.type == wot::path_type::python)
-                    {
-                        m_log->write(wot::log::type::info) << "Request for python file: " << path.file << std::endl;
-                        std::string file_path = "python " + location + "/" +  path.file;
-
-                        FILE* in;
-                        if((in = popen(file_path.c_str(), "r")))
+                        wot::path path = domain->get_path(client_request.get_path());
+                        std::string location = domain->get_location();
+                        
+                        m_log->write(wot::log::type::info) << "Request: " << location << " - " << path.request << " - " << path.file << std::endl;
+    
+                        if(path.request.size() > 0 && path.type == wot::path_type::plain)
                         {
-                            char buf[1024];
-                            std::stringstream ss;
-
-                            while(fgets(buf, sizeof(buf), in) != NULL)
+                            std::string file_path = location + "/" +  path.file;
+                            m_log->write(wot::log::type::info) << "Request for plain file: " << file_path << std::endl;
+    
+                            response = wot::response(wot::utils::file_to_string(file_path.c_str()), "text/html");
+                        }
+                        
+                        if(path.request.size() > 0 && path.type == wot::path_type::python)
+                        {
+                            m_log->write(wot::log::type::info) << "Request for python file: " << path.file << std::endl;
+                            std::string file_path = "python " + location + "/" +  path.file;
+    
+                            FILE* in;
+                            if((in = popen(file_path.c_str(), "r")))
                             {
-                                ss << buf;
+                                char buf[1024];
+                                std::stringstream ss;
+    
+                                while(fgets(buf, sizeof(buf), in) != NULL)
+                                {
+                                    ss << buf;
+                                }
+    
+                                response = wot::response(ss.str(), "text/html");
+    
+                                pclose(in);
                             }
-
-                            response = wot::response(ss.str(), "text/html");
-
-                            pclose(in);
                         }
                     }
+    
+                    if(response.size() == 0)
+                    {
+                        std::string file_path = domain->get_location() + "/" + domain->get_404();
+    
+                        response = wot::response(wot::utils::file_to_string(file_path.c_str()), "text/html");
+                    }
+    
+                    write(m_newsockfd, response.c_str(), response.size());
                 }
-
-                if(response.size() == 0)
+                else
                 {
-                    std::string file_path = domain->get_location() + "/" + domain->get_404();
-
-                    response = wot::response(wot::utils::file_to_string(file_path.c_str()), "text/html");
+                    m_log->write(wot::log::type::warning) << "Domain: " << client_request.get_host() << " not in allowed list!" << std::endl;
                 }
-
-                write(m_newsockfd, response.c_str(), response.size());
             }
             else
             {
-                m_log->write(wot::log::type::warning) << "Domain: " << client_request.get_host() << " not in allowed list!" << std::endl;
+                m_log->write(wot::log::type::warning) << "Error parsing client request." << std::endl;
             }
         }
         else

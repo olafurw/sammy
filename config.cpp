@@ -86,9 +86,14 @@ domains::domains()
     domain_lists.close();
 }
 
+bool domains::is_domain(const std::string& domain)
+{
+    return m_domains.find(domain) != m_domains.end();
+}
+
 std::shared_ptr<domain> domains::get_domain(const std::string& domain)
 {
-    return m_domains[domain];
+    return is_domain(domain) ? m_domains[domain] : nullptr;
 }
 
 bool domains::errors()

@@ -19,6 +19,7 @@ public:
     domains();
     bool errors();
 
+    bool is_domain(const std::string& domain);
     std::shared_ptr<domain> get_domain(const std::string& domain);
 
 private:
