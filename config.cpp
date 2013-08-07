@@ -56,6 +56,10 @@ domains::domains()
             {
                 path.type = wot::path_type::plain;
             }
+            else if(path_type_text == "python")
+            {
+                path.type = wot::path_type::python;
+            }
             else
             {
                 path.type = wot::path_type::unknown;

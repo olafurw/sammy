@@ -86,6 +86,28 @@ void server::handle()
 
                         response = wot::response(wot::utils::file_to_string(file_path.c_str()), "text/html");
                     }
+                    
+                    if(path.request.size() > 0 && path.type == wot::path_type::python)
+                    {
+                        m_log->write(wot::log::type::info) << "Request for python file: " << path.file << std::endl;
+                        std::string file_path = "python " + location + "/" +  path.file;
+
+                        FILE* in;
+                        if((in = popen(file_path.c_str(), "r")))
+                        {
+                            char buf[1024];
+                            std::stringstream ss;
+
+                            while(fgets(buf, sizeof(buf), in) != NULL)
+                            {
+                                ss << buf;
+                            }
+
+                            response = wot::response(ss.str(), "text/html");
+
+                            pclose(in);
+                        }
+                    }
                 }
 
                 if(response.size() == 0)
