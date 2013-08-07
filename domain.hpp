@@ -32,15 +32,18 @@ public:
 
     void add_hostname(const std::string& hostname);
     void set_location(const std::string& location);
+    void set_404(const std::string& file_404);
     void add_path(const wot::path& path);
 
     bool is_hostname(const std::string& hostname);
     std::string get_location();
+    std::string get_404();
     wot::path get_path(const std::string& path);
 
 private:
     std::vector<std::string> m_hostnames;
     std::string m_location;
+    std::string m_404;
     std::map<std::string, wot::path> m_paths;
 };
 }

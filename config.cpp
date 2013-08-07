@@ -64,8 +64,18 @@ domains::domains()
             domain->add_path(path);
         }
         domain_paths.close();
-
+        
         m_log->write(wot::log::type::info) << domain_prefix << " Path parsing complete." << std::endl;
+
+        // 404
+        std::ifstream domain_404("config/" + domain_prefix + ".404");
+        std::string file_404;
+        std::getline(domain_404, file_404);
+        domain->set_404(wot::utils::trim(file_404));
+        domain_404.close();
+
+        m_log->write(wot::log::type::info) << domain_prefix << " 404 parsing loaded." << std::endl;
+
         m_log->write(wot::log::type::info) << domain_prefix << " Config loaded." << std::endl;
     }
 

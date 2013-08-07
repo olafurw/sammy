@@ -69,7 +69,7 @@ void server::handle()
 
             if(client_request.errors() == false)
             {
-                std::string response;
+                std::string response = "";
                 std::shared_ptr<domain> domain = m_domains->get_domain(client_request.get_host());
 
                 if(domain && domain->is_hostname(client_request.get_host()) && client_request.get_method() == "GET")
@@ -81,11 +81,18 @@ void server::handle()
 
                     if(path.request.size() > 0 && path.type == wot::path_type::plain)
                     {
-                        std::string file_path = location + path.request + path.file;
+                        std::string file_path = location + "/" +  path.file;
                         m_log->write(wot::log::type::info) << "Request for plain file: " << file_path << std::endl;
 
-                        response = wot::response(wot::utils::file_to_string(file_path.c_str()), "text_html");
+                        response = wot::response(wot::utils::file_to_string(file_path.c_str()), "text/html");
                     }
+                }
+
+                if(response.size() == 0)
+                {
+                    std::string file_path = domain->get_location() + "/" + domain->get_404();
+
+                    response = wot::response(wot::utils::file_to_string(file_path.c_str()), "text/html");
                 }
 
                 write(m_newsockfd, response.c_str(), response.size());
