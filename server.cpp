@@ -81,34 +81,33 @@ void server::handle()
                         
                         m_log->write(wot::log::type::info) << "Request: " << location << " - " << path.request << " - " << path.file << std::endl;
     
-                        if(path.request.size() > 0 && path.type == wot::path_type::plain)
+                        if(client_request.get_path().find("/static/") == 0)
+                        {
+                            std::string file_path = location + client_request.get_path();
+                            m_log->write(wot::log::type::info) << "Request for static file: " << file_path << std::endl;
+
+                            std::string file_data = wot::utils::file_to_string(file_path.c_str());
+
+                            if(file_data.size() > 0)
+                            {
+                                response = wot::response(wot::utils::file_to_string(file_path.c_str()), wot::utils::mime_type(client_request.get_path()));
+                            }
+                        }
+                        else if(path.request.size() > 0 && path.type == wot::path_type::plain)
                         {
                             std::string file_path = location + "/" +  path.file;
                             m_log->write(wot::log::type::info) << "Request for plain file: " << file_path << std::endl;
     
                             response = wot::response(wot::utils::file_to_string(file_path.c_str()), "text/html");
                         }
-                        
-                        if(path.request.size() > 0 && path.type == wot::path_type::python)
+                        else if(path.request.size() > 0 && path.type == wot::path_type::python)
                         {
                             m_log->write(wot::log::type::info) << "Request for python file: " << path.file << std::endl;
                             std::string file_path = "python " + location + "/" +  path.file;
-    
-                            FILE* in;
-                            if((in = popen(file_path.c_str(), "r")))
-                            {
-                                char buf[1024];
-                                std::stringstream ss;
-    
-                                while(fgets(buf, sizeof(buf), in) != NULL)
-                                {
-                                    ss << buf;
-                                }
-    
-                                response = wot::response(ss.str(), "text/html");
-    
-                                pclose(in);
-                            }
+
+                            std::string data = wot::utils::program_to_string(file_path);
+
+                            response = wot::response(data, "text/html");
                         }
                     }
     

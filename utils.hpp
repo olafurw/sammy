@@ -5,6 +5,8 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+#include <memory>
+#include <time.h>
 
 namespace wot
 {
@@ -23,6 +25,12 @@ namespace utils
     // http://insanecoding.blogspot.com/2011/11/how-to-read-in-file-in-c.html
     // insane coder
     std::string file_to_string(const char* filename);
+    
+    std::string program_to_string(const std::string& run);
+    std::unique_ptr<std::string> current_time(const char* format);
+
+    bool ends_with(const std::string& str, const std::string& search);
+    std::string mime_type(const std::string& filename);
 }
 }
 

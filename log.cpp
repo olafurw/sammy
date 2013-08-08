@@ -2,22 +2,6 @@
 
 namespace wot
 {
-std::unique_ptr<std::string> current_time()
-{
-    time_t rawtime;
-    tm* timeinfo;
-    char buffer[80];
-
-    time(&rawtime);
-    timeinfo = localtime(&rawtime);
-
-    strftime(buffer, 80, "%Y-%m-%d %H:%M:%S", timeinfo);
-
-    std::unique_ptr<std::string> result{ new std::string(buffer) };
-
-    return result;
-}
-
 log::log(std::ostream& out)
 {
     m_out = &out;
@@ -46,7 +30,7 @@ std::ostream& log::write(wot::log::type log_type)
         break;
     }
 
-    std::unique_ptr<std::string> ctime = current_time();
+    std::unique_ptr<std::string> ctime = wot::utils::current_time("%Y-%m-%d %H:%M:%S");
     *m_out << "[" << type_string << "] " << *ctime << " " << std::flush;
     return *m_out;
 }

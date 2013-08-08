@@ -49,5 +49,68 @@ namespace utils
     
         return contents;
     }
+
+    std::string program_to_string(const std::string& run)
+    {
+        FILE* in;
+        std::stringstream ss;
+
+        if((in = popen(run.c_str(), "r")))
+        {
+            char buf[1024];
+
+            while(fgets(buf, sizeof(buf), in) != NULL)
+            {
+                ss << buf;
+            }
+
+            pclose(in);
+        }
+
+        return ss.str();
+    }
+    
+    std::unique_ptr<std::string> current_time(const char* format)
+    {
+        time_t rawtime;
+        tm* timeinfo;
+        char buffer[80];
+
+        time(&rawtime);
+        timeinfo = localtime(&rawtime);
+
+        strftime(buffer, 80, format, timeinfo);
+        std::unique_ptr<std::string> result{ new std::string(buffer) };
+
+        return result;
+    }
+
+    bool ends_with(const std::string& str, const std::string& search)
+    {
+        unsigned int str_length = str.length();
+        unsigned int search_length = search.length();
+
+        if(str_length >= search_length)
+        {
+            return str.compare(str_length - search_length, search_length, search) == 0;
+        }
+
+        return false;
+    }
+
+    std::string mime_type(const std::string& filename)
+    {
+        if(ends_with(filename, ".css"))
+        {
+            return "text/css";
+        }
+        else if(ends_with(filename, ".js"))
+        {
+            return "application/javascript";
+        }
+
+        return "text/plain";
+    }
 }
 }
+

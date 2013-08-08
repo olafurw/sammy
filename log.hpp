@@ -5,7 +5,8 @@
 #include <string>
 #include <fstream>
 #include <memory>
-#include <time.h>
+
+#include "utils.hpp"
 
 namespace wot
 {

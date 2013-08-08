@@ -3,6 +3,9 @@
 
 #include <string>
 #include <sstream>
+#include <iostream>
+
+#include "utils.hpp"
 
 namespace wot
 {
