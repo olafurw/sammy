@@ -108,6 +108,14 @@ namespace utils
         {
             return "application/javascript";
         }
+        else if(ends_with(filename, ".png"))
+        {
+            return "image/png";
+        }
+        else if(ends_with(filename, ".jpg") || ends_with(filename, ".jpeg"))
+        {
+            return "image/jpeg";
+        }
 
         return "text/plain";
     }
