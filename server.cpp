@@ -58,11 +58,11 @@ void server::handle()
         m_log->write(wot::log::type::info) << "Request accepted from: " << inet_str << std::endl;
 
         size_t read_result = read(m_newsockfd, m_buffer, m_buffer_size - 1);
+        std::string buffer_str(m_buffer);
 
-        if(read_result >= 1)
-        { 
-            std::string buffer_str(m_buffer);
-    
+        if(read_result >= 1 && buffer_str.size() > 0)
+        {
+            m_log->write(wot::log::type::info) << "Read result: " << read_result << std::endl; 
             m_log->write(wot::log::type::info) << "Packet: " << std::endl << buffer_str << std::endl;
     
             wot::request client_request(buffer_str);
