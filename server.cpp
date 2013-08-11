@@ -68,6 +68,68 @@ void server::read_request(size_t& read_result, std::string& buffer_str)
     buffer_str = buffer;
 }
 
+std::string server::static_file_response(std::shared_ptr<domain> domain, const wot::request& request)
+{
+    std::string response = "";
+
+    // Get the file path
+    std::string file_path = domain->get_location() + request.get_path();
+    m_log->write(wot::log::type::info) << "Request for static file: " << file_path << std::endl;
+
+    // Open the file and put it into a string
+    std::string file_data = wot::utils::file_to_string(file_path.c_str());
+
+    if(file_data.size() > 0)
+    {
+        response = wot::response(file_data, wot::utils::mime_type(request.get_path()));
+    }
+
+    return response;
+}
+
+std::string server::plain_file_response(std::shared_ptr<domain> domain, const wot::path& path)
+{
+    std::string response = "";
+
+    std::string file_path = domain->get_location()  + "/" +  path.file;
+    m_log->write(wot::log::type::info) << "Request for plain file: " << file_path << std::endl;
+
+    // Open the file and put it into a string
+    std::string file_data = wot::utils::file_to_string(file_path.c_str());
+
+    if(file_data.size() > 0)
+    {
+        response = wot::response(file_data, wot::utils::mime_type(path.file));
+    }
+
+    return response;
+}
+
+std::string server::python_response(std::shared_ptr<domain> domain, const wot::path& path)
+{
+    std::string response = "";
+
+    std::string file_path = "python " + domain->get_location() + "/" +  path.file;
+    m_log->write(wot::log::type::info) << "Request for python file: " << file_path << std::endl;
+
+    // Open the file and put it into a string
+    std::string file_data = wot::utils::program_to_string(file_path);
+
+    if(file_data.size() > 0)
+    {
+        response = wot::response(file_data, "text/html");
+    }
+
+    return response;
+}
+
+std::string server::file_not_found_response(std::shared_ptr<domain> domain)
+{
+    std::string file_path = domain->get_location() + "/" + domain->get_404();
+
+    return wot::response(wot::utils::file_to_string(file_path.c_str()), "text/html");
+}
+
 void server::handle()
 {
     try
@@ -121,48 +183,34 @@ void server::handle()
             return;
         }
 
+        // If this request is a hostname we are serving and this is a GET request
         if(domain->is_hostname(client_request.get_host()) && client_request.get_method() == "GET")
         {
+            // Get path information from the request
             wot::path path = domain->get_path(client_request.get_path());
-            std::string location = domain->get_location();
+            m_log->write(wot::log::type::info) << "Request: " << domain->get_location() << " - " << path.request << " - " << path.file << std::endl;
 
-            m_log->write(wot::log::type::info) << "Request: " << location << " - " << path.request << " - " << path.file << std::endl;
-
+            // Request is for a static file, we get that response
             if(client_request.get_path().find("/static/") == 0)
             {
-                std::string file_path = location + client_request.get_path();
-                m_log->write(wot::log::type::info) << "Request for static file: " << file_path << std::endl;
-
-                std::string file_data = wot::utils::file_to_string(file_path.c_str());
-
-                if(file_data.size() > 0)
-                {
-                    response = wot::response(wot::utils::file_to_string(file_path.c_str()), wot::utils::mime_type(client_request.get_path()));
-                }
+                response = static_file_response(domain, client_request);
             }
+            // Request is for a plain file
             else if(path.request.size() > 0 && path.type == wot::path_type::plain)
             {
-                std::string file_path = location + "/" +  path.file;
-                m_log->write(wot::log::type::info) << "Request for plain file: " << file_path << std::endl;
-
-                response = wot::response(wot::utils::file_to_string(file_path.c_str()), "text/html");
+                response = plain_file_response(domain, path);
             }
+            // Request is for a python file
             else if(path.request.size() > 0 && path.type == wot::path_type::python)
             {
-                m_log->write(wot::log::type::info) << "Request for python file: " << path.file << std::endl;
-                std::string file_path = "python " + location + "/" +  path.file;
-
-                std::string data = wot::utils::program_to_string(file_path);
-
-                response = wot::response(data, "text/html");
+                response = python_response(domain, path);
             }
         }
 
+        // 404, response is empty.
         if(response.size() == 0)
         {
-            std::string file_path = domain->get_location() + "/" + domain->get_404();
-
-            response = wot::response(wot::utils::file_to_string(file_path.c_str()), "text/html");
+            response = file_not_found_response(domain);
         }
 
         write(m_newsockfd, response.c_str(), response.size());

@@ -52,13 +52,17 @@ domains::domains()
             path_ss >> path_type_text;
             path_ss >> path.file;
 
-            if(path_type_text == "file")
+            if(path_type_text == "plain")
             {
                 path.type = wot::path_type::plain;
             }
             else if(path_type_text == "python")
             {
                 path.type = wot::path_type::python;
+            }
+            else if (path_type_text == "binary")
+            {
+                path.type = wot::path_type::binary;
             }
             else
             {
