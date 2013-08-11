@@ -100,7 +100,11 @@ namespace utils
 
     std::string mime_type(const std::string& filename)
     {
-        if(ends_with(filename, ".css"))
+        if(ends_with(filename, ".html"))
+        {
+            return "text/html";
+        }
+        else if(ends_with(filename, ".css"))
         {
             return "text/css";
         }
