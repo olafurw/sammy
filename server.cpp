@@ -79,7 +79,7 @@ void server::handle()
         read_request(read_result, request_str);
 
         // If the read result isn't ok
-        if(read_result != 0)
+        if(read_result == -1)
         {
             m_log->write(wot::log::type::error) << "Error reading from socket: " << read_result << std::endl;
             m_log->write(wot::log::type::error) << request_str << std::endl;
