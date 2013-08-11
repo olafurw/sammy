@@ -74,8 +74,8 @@ void server::handle()
     {
         accept_request();
 
-        std::string request_str;
-        size_t read_result;
+        std::string request_str = "";
+        size_t read_result = 0;
         read_request(read_result, request_str);
 
         // If the read result isn't ok
