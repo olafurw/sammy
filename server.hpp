@@ -30,6 +30,9 @@ public:
     ~server();
 
 private:
+    void accept_request();
+    void read_request(size_t& read_result, std::string& buffer_str);
+
     int m_portno;
     int m_sockfd;
     int m_newsockfd;
@@ -37,9 +40,6 @@ private:
     socklen_t m_clilen;
     sockaddr_in m_serv_addr;
     sockaddr_in m_cli_addr;
-
-    char* m_buffer;
-    size_t m_buffer_size;
 
     std::unique_ptr<wot::log> m_log;
     std::unique_ptr<wot::domains> m_domains;
