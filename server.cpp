@@ -123,6 +123,26 @@ std::string server::python_response(std::shared_ptr<domain> domain, const wot::p
     return response;
 }
 
+std::string server::binary_response(std::shared_ptr<domain> domain, const wot::path& path, const wot::request& request)
+{
+    std::string response = "";
+
+    std::string file_path = domain->get_location() + "/" +  path.file + " " + request.get_path();
+    m_log->write(wot::log::type::info) << "Request for binary file: " << file_path << std::endl;
+
+    // Open the file and put it into a string
+    std::string file_data = wot::utils::program_to_string(file_path);
+
+    std::cout << file_data << std::endl;
+
+    if(file_data.size() > 0)
+    {
+        response = wot::response(file_data, "text/html");
+    }
+
+    return response;
+}
+
 std::string server::file_not_found_response(std::shared_ptr<domain> domain)
 {
     std::string file_path = domain->get_location() + "/" + domain->get_404();
@@ -188,6 +208,13 @@ void server::handle()
         {
             // Get path information from the request
             wot::path path = domain->get_path(client_request.get_path());
+
+            // If the path type is unknown, we might have a wildcard type
+            if(path.type == wot::path_type::unknown)
+            {
+                path = domain->find_wildcard_path(client_request.get_path());
+            }
+
             m_log->write(wot::log::type::info) << "Request: " << domain->get_location() << " - " << path.request << " - " << path.file << std::endl;
 
             // Request is for a static file, we get that response
@@ -204,6 +231,11 @@ void server::handle()
             else if(path.request.size() > 0 && path.type == wot::path_type::python)
             {
                 response = python_response(domain, path);
+            }
+            // Request is for a binary file
+            else if(path.request.size() > 0 && path.type == wot::path_type::binary)
+            {
+                response = binary_response(domain, path, client_request);
             }
         }
 

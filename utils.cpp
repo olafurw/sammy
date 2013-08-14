@@ -34,7 +34,7 @@ namespace utils
     
         return segments;
     }
-
+    
     std::string file_to_string(const char* filename)
     {
         std::ifstream in(filename, std::ios::in | std::ios::binary);
@@ -50,12 +50,13 @@ namespace utils
         return contents;
     }
 
-    std::string program_to_string(const std::string& run)
+    std::string program_to_string(const std::string& run, const std::string& argument)
     {
         FILE* in;
         std::stringstream ss;
+        std::string run_command = run + " " + argument;
 
-        if((in = popen(run.c_str(), "r")))
+        if((in = popen(run_command.c_str(), "r")))
         {
             char buf[1024];
 

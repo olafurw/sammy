@@ -6,6 +6,8 @@
 #include <string>
 #include <algorithm>
 
+#include "utils.hpp"
+
 namespace wot
 {
 enum class path_type
@@ -22,7 +24,12 @@ struct path
     wot::path_type type;
     std::string file;
 
-    path() { };
+    path()
+    {
+        request = "";
+        type = wot::path_type::unknown;
+        file = "";
+    };
 };
 
 class domain
@@ -39,6 +46,7 @@ public:
     std::string get_location();
     std::string get_404();
     wot::path get_path(const std::string& path);
+    wot::path find_wildcard_path(const std::string& path);
 
 private:
     std::vector<std::string> m_hostnames;

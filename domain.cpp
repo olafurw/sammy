@@ -46,4 +46,25 @@ wot::path domain::get_path(const std::string& path)
     return m_paths[path];
 }
 
+wot::path domain::find_wildcard_path(const std::string& path)
+{
+    wot::path result;
+
+    for(auto& kv: m_paths)
+    {
+        if(wot::utils::ends_with(kv.first, "*"))
+        {
+            std::string trim_path = kv.first.substr(0, kv.first.size() - 1);
+
+            if(path.find(trim_path) == 0)
+            {
+                result = kv.second;
+                break;
+            }
+        }
+    }
+
+    return result;
+}
+
 }

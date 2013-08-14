@@ -26,7 +26,7 @@ namespace utils
     // insane coder
     std::string file_to_string(const char* filename);
     
-    std::string program_to_string(const std::string& run);
+    std::string program_to_string(const std::string& run, const std::string& argument = "");
     std::unique_ptr<std::string> current_time(const char* format);
 
     bool ends_with(const std::string& str, const std::string& search);
