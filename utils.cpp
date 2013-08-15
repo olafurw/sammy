@@ -58,7 +58,6 @@ namespace utils
 
         for(const char& c : dirty)
         {
-            std::cout << c << " " << strspn(&c, whitelist) << std::endl;
             if(strspn(&c, whitelist) != 0)
             {
                 ss << c;
@@ -68,8 +67,6 @@ namespace utils
                 ss << "_";
             }
         }
-
-        std::cout << ss.str() << std::endl;
 
         return ss.str();
     }
