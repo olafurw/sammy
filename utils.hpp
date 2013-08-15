@@ -1,12 +1,17 @@
 #ifndef _WOT_UTILITIES_
 #define _WOT_UTILITIES_
 
+#include <unistd.h>
 #include <vector>
 #include <fstream>
 #include <sstream>
+#include <string.h>
 #include <algorithm>
 #include <memory>
+#include <stdlib.h>
+#include <stdio.h>
 #include <time.h>
+#include <iostream>
 
 namespace wot
 {
@@ -26,7 +31,9 @@ namespace utils
     // insane coder
     std::string file_to_string(const char* filename);
     
+    std::string sanitize_string(const std::string dirty);
     std::string program_to_string(const std::string& run, const std::string& argument = "");
+
     std::unique_ptr<std::string> current_time(const char* format);
 
     bool ends_with(const std::string& str, const std::string& search);

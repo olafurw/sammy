@@ -127,13 +127,13 @@ std::string server::binary_response(std::shared_ptr<domain> domain, const wot::p
 {
     std::string response = "";
 
-    std::string file_path = domain->get_location() + "/" +  path.file + " " + request.get_path();
-    m_log->write(wot::log::type::info) << "Request for binary file: " << file_path << std::endl;
+    std::string sanitized_get_path = wot::utils::sanitize_string(request.get_path());
+
+    std::string file_path = domain->get_location() + "/" +  path.file + " " + sanitized_get_path;
+    m_log->write(wot::log::type::info) << "Request for binary file: " << file_path << " with argument " << sanitized_get_path << " (" << request.get_path() << ")" << std::endl;
 
     // Open the file and put it into a string
     std::string file_data = wot::utils::program_to_string(file_path);
-
-    std::cout << file_data << std::endl;
 
     if(file_data.size() > 0)
     {
