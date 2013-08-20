@@ -59,12 +59,25 @@ void server::accept_request()
 
 void server::read_request(size_t& read_result, std::string& buffer_str)
 {
-    // Create and zero out the buffer
-    char buffer[1024];
-    bzero(buffer, 1024);
+    m_log->write(wot::log::type::info) << "Starting to read the request" << std::endl;
 
-    // Read request into a string
-    read_result = read(m_newsockfd, buffer, 1024 - 1);
+    // Create and zero out the buffer
+    char buffer[2048];
+    bzero(buffer, 2048);
+
+    char p;
+    size_t peek_size = recv(m_newsockfd, &p, 1, MSG_PEEK);
+    if(peek_size < 1)
+    {
+        m_log->write(wot::log::type::info) << "Peek returned: " << peek_size << std::endl;
+        
+        read_result = peek_size;
+        return;
+    }
+
+    m_log->write(wot::log::type::info) << "Peek confirmed, data to read" << std::endl;
+
+    read_result = read(m_newsockfd, buffer, 2048 - 1);
     buffer_str = buffer;
 }
 
