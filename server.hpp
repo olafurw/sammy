@@ -12,6 +12,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+#include <thread>
 #include <memory>
 
 #include "log.hpp"
@@ -25,7 +26,7 @@ namespace wot
 class server
 {
 public:
-    server();
+    server(int sockfd, std::shared_ptr<wot::domains> domains);
     void handle();
     ~server();
 
@@ -38,16 +39,10 @@ private:
     std::string binary_response(std::shared_ptr<domain> domain, const wot::path& path, const wot::request& request);
     std::string file_not_found_response(std::shared_ptr<domain> domain);
 
-    int m_portno;
     int m_sockfd;
-    int m_newsockfd;
-
-    socklen_t m_clilen;
-    sockaddr_in m_serv_addr;
-    sockaddr_in m_cli_addr;
 
     std::unique_ptr<wot::log> m_log;
-    std::unique_ptr<wot::domains> m_domains;
+    std::shared_ptr<wot::domains> m_domains;
 };
 }
 

@@ -3,59 +3,16 @@
 namespace wot
 {
 
-server::server()
+server::server(int sockfd, std::shared_ptr<wot::domains> domains)
 {
     // Init the logger
     m_log = std::unique_ptr<wot::log>(new wot::log(std::cout));
-    m_log->write(wot::log::type::info) << "Starting Server." << std::endl;
 
-    // Init the domain config loading
-    m_domains = std::unique_ptr<wot::domains>(new wot::domains());
-    if(m_domains->errors())
-    {
-        m_log->write(wot::log::type::error) << "Error loading allowed domains config." << std::endl;
-        exit(1);
-    }
-
-    m_log->write(wot::log::type::info) << "Allowed domains config loaded." << std::endl;
-
-    // Create the socket and set the socket options
-    m_portno = 80;
-    m_sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    int optval = 1;
-    setsockopt(m_sockfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
-
-    // Set the current server address information
-    bzero((char*)&m_serv_addr, sizeof(m_serv_addr));
-    m_serv_addr.sin_family = AF_INET;
-    m_serv_addr.sin_addr.s_addr = INADDR_ANY;
-    m_serv_addr.sin_port = htons(m_portno);
-
-    // Bind the socket with the address information given above
-    bind(m_sockfd, (sockaddr*)&m_serv_addr, sizeof(m_serv_addr));
-    m_log->write(wot::log::type::info) << "Socket Bound." << std::endl;
-
-    // Listen on the socket, with possible 20 connections that can wait in the backlog
-    listen(m_sockfd, 20);
-    m_log->write(wot::log::type::info) << "Listening to socket." << std::endl;
-
-    m_clilen = sizeof(m_cli_addr);
-    m_log->write(wot::log::type::info) << "Server Started." << std::endl;
+    m_sockfd = sockfd;
+    
+    m_domains = domains;
 }
 
-void server::accept_request()
-{
-    // Accept socket request
-    m_log->write(wot::log::type::info) << "Waiting for a request." << std::endl;
-
-    // Accept the the request
-    m_newsockfd = accept(m_sockfd, (sockaddr*)&m_cli_addr, &m_clilen);
-
-    // Log who is requesting the data
-    char inet_str[INET_ADDRSTRLEN];
-    inet_ntop(m_cli_addr.sin_family, &(m_cli_addr.sin_addr), inet_str, INET_ADDRSTRLEN);
-    m_log->write(wot::log::type::info) << "Request accepted from: " << inet_str << std::endl;
-}
 
 void server::read_request(size_t& read_result, std::string& buffer_str)
 {
@@ -66,7 +23,7 @@ void server::read_request(size_t& read_result, std::string& buffer_str)
     bzero(buffer, 2048);
 
     char p;
-    size_t peek_size = recv(m_newsockfd, &p, 1, MSG_PEEK);
+    size_t peek_size = recv(m_sockfd, &p, 1, MSG_PEEK);
     if(peek_size < 1)
     {
         m_log->write(wot::log::type::info) << "Peek returned: " << peek_size << std::endl;
@@ -77,7 +34,7 @@ void server::read_request(size_t& read_result, std::string& buffer_str)
 
     m_log->write(wot::log::type::info) << "Peek confirmed, data to read" << std::endl;
 
-    read_result = read(m_newsockfd, buffer, 2048 - 1);
+    read_result = read(m_sockfd, buffer, 2048 - 1);
     buffer_str = buffer;
 }
 
@@ -167,8 +124,6 @@ void server::handle()
 {
     try
     {
-        accept_request();
-
         std::string request_str = "";
         size_t read_result = 0;
         read_request(read_result, request_str);
@@ -179,7 +134,7 @@ void server::handle()
             m_log->write(wot::log::type::error) << "Error reading from socket: " << read_result << std::endl;
             m_log->write(wot::log::type::error) << request_str << std::endl;
 
-            close(m_newsockfd);
+            close(m_sockfd);
             return;
         }
 
@@ -188,7 +143,7 @@ void server::handle()
         {
             m_log->write(wot::log::type::error) << "Request string empty!" <<  std::endl;
 
-            close(m_newsockfd);
+            close(m_sockfd);
             return;
         }
 
@@ -200,7 +155,7 @@ void server::handle()
         {
             m_log->write(wot::log::type::error) << "Error parsing request string." <<  std::endl;
 
-            close(m_newsockfd);
+            close(m_sockfd);
             return;
         }
 
@@ -212,7 +167,7 @@ void server::handle()
         {
             m_log->write(wot::log::type::warning) << "Domain: " << client_request.get_host() << " not in allowed list!" << std::endl;
 
-            close(m_newsockfd);
+            close(m_sockfd);
             return;
         }
 
@@ -258,18 +213,17 @@ void server::handle()
             response = file_not_found_response(domain);
         }
 
-        write(m_newsockfd, response.c_str(), response.size());
+        write(m_sockfd, response.c_str(), response.size());
     }
     catch(...)
     {
-        close(m_newsockfd);
+        close(m_sockfd);
         return;
     }
 }
 
 server::~server()
 {
-    close(m_newsockfd);
     close(m_sockfd);
 }
 
