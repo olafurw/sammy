@@ -20,11 +20,25 @@ request::request(const std::string& r)
         return;
     }
     
-    std::vector<std::string> first_line = wot::utils::split_string(request_lines.at(0), ' ');
+    parse_header(request_lines.at(0));
+    parse_host(request_lines);
+    parse_cookies(request_lines);
+    
+    if(m_error == 1 || m_method.size() == 0 || m_path.size() == 0 || m_method.size() == 0)
+    {
+        m_error = 1;
+        return;
+    }
+
+    m_log->write(wot::log::type::info) << "Request parsed: " << m_method << " " << m_host << " " << m_path << std::endl;
+}
+
+void request::parse_header(const std::string& header)
+{
+    std::vector<std::string> first_line = wot::utils::split_string(header, ' ');
 
     if(first_line.size() < 3)
     {
-        m_error = 1;
         return;
     }
 
@@ -32,23 +46,51 @@ request::request(const std::string& r)
     {   
         m_method = "GET";
     }
+    else if(first_line.at(0) == "POST")
+    {
+        m_method = "POST";
+    }
+    else
+    {
+        m_error = 1;
+        m_method = "UNKNOWN";
+    }
     
     m_path = wot::utils::trim(first_line.at(1));
-    
-    int m_hostindex = find_line_starting_with("Host:", request_lines);
-    std::vector<std::string> m_hostline = wot::utils::split_string(request_lines.at(m_hostindex), ' ');
-    if(m_hostline.size() >= 2)
-    {   
-        m_host = wot::utils::trim(m_hostline.at(1));
-    }
 
-    if(m_method.size() == 0 || m_path.size() == 0 || m_method.size() == 0)
+    return;
+}
+
+void request::parse_host(const std::vector<std::string>& request_lines)
+{
+    int hostindex = wot::utils::line_starting_with("Host:", request_lines);
+    if(hostindex == -1)
     {
         m_error = 1;
         return;
     }
 
-    m_log->write(wot::log::type::info) << "Request parsed: " << m_method << " " << m_host << " " << m_path << std::endl;
+    auto hostline = wot::utils::split_string(request_lines.at(hostindex), ' ');
+    if(hostline.size() >= 2)
+    {   
+        m_host = wot::utils::trim(hostline.at(1));
+        return;
+    }
+
+    m_error = 1;
+    
+    return;
+}
+
+void request::parse_cookies(const std::vector<std::string>& request_lines)
+{
+    int cookieindex = wot::utils::line_starting_with("Cookie:", request_lines);
+    if(cookieindex == -1)
+    {
+        return;
+    }
+    
+    m_log->write(wot::log::type::info) << "Cookie: " << request_lines.at(cookieindex) << std::endl;
 }
 
 std::string request::get_host() const
@@ -71,29 +113,4 @@ bool request::errors() const
     return m_error != 0;
 }
 
-int request::find_line_containing(const std::string& value, const std::vector<std::string>& request_lines) const
-{   
-    for(unsigned int i = 0; i < request_lines.size(); ++i)
-    {   
-        if(request_lines.at(i).find(value) != std::string::npos)
-        {
-            return i;
-        }   
-    }   
-
-    return -1; 
-}
-
-int request::find_line_starting_with(const std::string& value, const std::vector<std::string>& request_lines) const
-{
-    for(unsigned int i = 0; i < request_lines.size(); ++i)
-    {
-        if(request_lines.at(i).find(value) == 0)
-        {
-            return i;
-        }
-    }
-
-    return -1;
-}
 }

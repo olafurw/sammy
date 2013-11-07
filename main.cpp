@@ -72,7 +72,9 @@ int main(int argc, char *argv[])
         inet_ntop(cli_addr.sin_family, &(cli_addr.sin_addr), inet_str, INET_ADDRSTRLEN);
         log->write(wot::log::type::info) << "Request accepted from: " << inet_str << std::endl;
 
+        // Spawn the handling thread and detach it, let it finish on its own
         std::thread thread { [ newsockfd, domains, &process_mutex, &process_ids ]() {
+                                // Store the thread id in the process list
                                 process_mutex.lock();
                                 process_ids.push_back(std::this_thread::get_id());
                                 process_mutex.unlock();
@@ -80,6 +82,7 @@ int main(int argc, char *argv[])
                                 wot::server server{ newsockfd, domains };
                                 server.handle();
                                 
+                                // Remove the thread id from the process list, since we are done handling the request
                                 process_mutex.lock();
                                 process_ids.erase(std::remove(process_ids.begin(), process_ids.end(), std::this_thread::get_id()), process_ids.end());
                                 process_mutex.unlock();

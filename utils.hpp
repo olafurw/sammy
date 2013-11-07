@@ -30,6 +30,7 @@ namespace utils
     // http://insanecoding.blogspot.com/2011/11/how-to-read-in-file-in-c.html
     // insane coder
     std::string file_to_string(const char* filename);
+    std::vector<std::string> file_to_array(const char* filename, char token = '\n');
     
     std::string sanitize_string(const std::string dirty);
     std::string program_to_string(const std::string& run, const std::string& argument = "");
@@ -37,6 +38,9 @@ namespace utils
     std::unique_ptr<std::string> current_time(const char* format);
 
     bool ends_with(const std::string& str, const std::string& search);
+    int line_containing(const std::string& value, const std::vector<std::string>& request_lines);
+    int line_starting_with(const std::string& value, const std::vector<std::string>& request_lines);
+
     std::string mime_type(const std::string& filename);
 }
 }

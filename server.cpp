@@ -13,14 +13,15 @@ server::server(int sockfd, std::shared_ptr<wot::domains> domains)
     m_domains = domains;
 }
 
-
 void server::read_request(size_t& read_result, std::string& buffer_str)
 {
     m_log->write(wot::log::type::info) << "Starting to read the request" << std::endl;
 
+    const unsigned int read_size = 8192;
+
     // Create and zero out the buffer
-    char buffer[2048];
-    bzero(buffer, 2048);
+    char buffer[read_size];
+    bzero(buffer, read_size);
 
     char p;
     size_t peek_size = recv(m_sockfd, &p, 1, MSG_PEEK);
@@ -34,7 +35,7 @@ void server::read_request(size_t& read_result, std::string& buffer_str)
 
     m_log->write(wot::log::type::info) << "Peek confirmed, data to read" << std::endl;
 
-    read_result = read(m_sockfd, buffer, 2048 - 1);
+    read_result = read(m_sockfd, buffer, read_size - 1);
     buffer_str = buffer;
 }
 

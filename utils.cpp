@@ -50,6 +50,11 @@ namespace utils
         return contents;
     }
 
+    std::vector<std::string> file_to_array(const char* filename, char token)
+    {
+        return split_string(file_to_string(filename), token);
+    }
+
     std::string sanitize_string(const std::string dirty)
     {
         static char whitelist[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890_/";
@@ -118,6 +123,32 @@ namespace utils
         }
 
         return false;
+    }
+
+    int line_containing(const std::string& value, const std::vector<std::string>& request_lines)
+    {   
+        for(unsigned int i = 0; i < request_lines.size(); ++i)
+        {   
+            if(request_lines.at(i).find(value) != std::string::npos)
+            {
+                return i;
+            }   
+        }   
+
+        return -1; 
+    }
+
+    int line_starting_with(const std::string& value, const std::vector<std::string>& request_lines)
+    {
+        for(unsigned int i = 0; i < request_lines.size(); ++i)
+        {
+            if(request_lines.at(i).find(value) == 0)
+            {
+                return i;
+            }
+        }
+
+        return -1;
     }
 
     std::string mime_type(const std::string& filename)

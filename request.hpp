@@ -22,8 +22,9 @@ public:
     bool errors() const;
 
 private:
-    int find_line_containing(const std::string& value, const std::vector<std::string>& request_lines) const;
-    int find_line_starting_with(const std::string& value, const std::vector<std::string>& request_lines) const;
+    void parse_header(const std::string& header);
+    void parse_host(const std::vector<std::string>& request_lines);
+    void parse_cookies(const std::vector<std::string>& request_lines);
 
     std::string m_method;
     std::string m_path;
