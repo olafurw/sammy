@@ -1,5 +1,5 @@
 /               plain   index.html
-/python         python  bleh.py
+/python         python  test.py
 /favicon.ico    plain   favicon.ico
 /about          plain   about.html
 /blog/*         binary  blog
