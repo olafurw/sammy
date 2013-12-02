@@ -16,7 +16,7 @@
 #include <memory>
 
 #include "log.hpp"
-#include "utils.hpp"
+#include "utils/utils.hpp"
 #include "response.hpp"
 #include "request.hpp"
 #include "config.hpp"

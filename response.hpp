@@ -5,7 +5,7 @@
 #include <sstream>
 #include <iostream>
 
-#include "utils.hpp"
+#include "utils/utils.hpp"
 
 namespace wot
 {

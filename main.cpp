@@ -8,7 +8,7 @@
 #include <thread>
 #include <mutex>
 
-#include "utils.hpp"
+#include "utils/utils.hpp"
 #include "log.hpp"
 #include "request.hpp"
 #include "server.hpp"

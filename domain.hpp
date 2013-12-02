@@ -6,7 +6,7 @@
 #include <string>
 #include <algorithm>
 
-#include "utils.hpp"
+#include "utils/utils.hpp"
 
 namespace wot
 {
