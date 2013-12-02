@@ -12,5 +12,5 @@
 *.la
 *.a
 
-# Binary files
-server
+# Build directory
+build
