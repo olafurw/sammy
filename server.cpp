@@ -60,6 +60,8 @@ std::string server::static_file_response(std::shared_ptr<domain> domain, const w
 
 std::string server::plain_file_response(std::shared_ptr<domain> domain, const wot::path& path)
 {
+    std::string base64test = "How are you this day my good sir??";
+    std::cout << wot::utils::base64_encode(base64test) << std::endl;
     std::string response = "";
 
     std::string file_path = domain->get_location()  + "/" +  path.file;

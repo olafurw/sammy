@@ -46,6 +46,14 @@ namespace utils
     int line_starting_with(const std::string& value, const std::vector<std::string>& request_lines);
 
     std::string mime_type(const std::string& filename);
+
+    // Base 64, modified version from
+    // http://stackoverflow.com/a/6782480/22459
+    // ryyst
+    std::string base64_encode(std::string data);
+    unsigned char *base64_decode(const char *data,
+                                 size_t input_length,
+                                 size_t *output_length);
 }
 }
 

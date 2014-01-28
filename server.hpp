@@ -35,7 +35,7 @@ private:
     void read_request(size_t& read_result, std::string& buffer_str);
     std::string static_file_response(std::shared_ptr<domain> domain, const wot::request& request);
     std::string plain_file_response(std::shared_ptr<domain> domain, const wot::path& path);
-    std::string python_response(std::shared_ptr<domain> domain, const wot::path& path);
+    std::string python_response(std::shared_ptr<domain> domain, const wot::path& path, std::string data = "");
     std::string binary_response(std::shared_ptr<domain> domain, const wot::path& path, const wot::request& request);
     std::string file_not_found_response(std::shared_ptr<domain> domain);
 
