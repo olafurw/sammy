@@ -18,16 +18,25 @@ enum class path_type
     unknown = 4
 };
 
+enum class method_type
+{
+    get = 1,
+    post = 2,
+    unknown = 3
+};
+
 struct path
 {
     std::string request;
     wot::path_type type;
+    wot::method_type method;
     std::string file;
 
     path()
     {
         request = "";
         type = wot::path_type::unknown;
+        method = wot::method_type::unknown;
         file = "";
     };
 };
@@ -45,14 +54,14 @@ public:
     bool is_hostname(const std::string& hostname);
     std::string get_location();
     std::string get_404();
-    wot::path get_path(const std::string& path);
-    wot::path find_wildcard_path(const std::string& path);
+    wot::path get_path(wot::method_type method, const std::string& path);
+    wot::path find_wildcard_path(wot::method_type method, const std::string& path);
 
 private:
     std::vector<std::string> m_hostnames;
     std::string m_location;
     std::string m_404;
-    std::map<std::string, wot::path> m_paths;
+    std::map<wot::method_type, std::map<std::string, wot::path>> m_paths;
 };
 }
 

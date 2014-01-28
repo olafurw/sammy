@@ -23,6 +23,7 @@ request::request(const std::string& r)
     parse_header(request_lines.at(0));
     parse_host(request_lines);
     parse_cookies(request_lines);
+    parse_post_data(request_lines);
     
     if(m_error == 1 || m_method.size() == 0 || m_path.size() == 0 || m_method.size() == 0)
     {
@@ -93,6 +94,32 @@ void request::parse_cookies(const std::vector<std::string>& request_lines)
     m_log->write(wot::log::type::info) << "Cookie: " << request_lines.at(cookieindex) << std::endl;
 }
 
+void request::parse_post_data(const std::vector<std::string>& request_lines)
+{
+    if(m_method != "POST")
+    {
+        return;
+    }
+
+    std::stringstream post_stream;
+
+    bool found_empty_line = false;
+    for(const auto& line : request_lines)
+    {
+        if(!found_empty_line && wot::utils::trim(line) == "")
+        {
+            found_empty_line = true;
+        }
+
+        if(found_empty_line)
+        {
+            post_stream << line;
+        }
+    }
+
+    m_post_data = wot::utils::trim(post_stream.str());
+}
+
 std::string request::get_host() const
 {   
     return m_host;
@@ -106,6 +133,11 @@ std::string request::get_path() const
 std::string request::get_method() const
 {   
     return m_method;
+}
+
+std::string request::get_post_data() const
+{
+    return m_post_data;
 }
 
 bool request::errors() const

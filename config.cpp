@@ -47,11 +47,28 @@ domains::domains()
 
             wot::path path;
             std::string path_type_text;
+            std::string method_type_text;
 
             path_ss >> path.request;
+            path_ss >> method_type_text;
             path_ss >> path_type_text;
             path_ss >> path.file;
 
+            // Get or Post Method
+            if(method_type_text == "get")
+            {
+                path.method = wot::method_type::get;
+            }
+            else if(method_type_text == "post")
+            {
+                path.method = wot::method_type::post;
+            }
+            else
+            {
+                path.method = wot::method_type::unknown;
+            }
+
+            // Path Type
             if(path_type_text == "plain")
             {
                 path.type = wot::path_type::plain;

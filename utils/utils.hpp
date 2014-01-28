@@ -24,6 +24,10 @@ namespace utils
     std::string& rtrim(std::string& s);
     std::string& trim(std::string& s);
 
+    std::string ltrim(const std::string& s);
+    std::string rtrim(const std::string& s);
+    std::string trim(const std::string& s);
+
     std::vector<std::string> split_string(const std::string& str, char token);
 
     // File to string

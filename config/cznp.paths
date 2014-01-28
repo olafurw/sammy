@@ -1,5 +1,7 @@
-/               plain   index.html
-/python         python  test.py
-/favicon.ico    plain   favicon.ico
-/about          plain   about.html
-/blog/*         binary  blog
+/              get     plain   index.html
+/post          get     plain   post.html
+/post          post    python  post.py
+/python        get     python  test.py
+/favicon.ico   get     plain   favicon.ico
+/about         get     plain   about.html
+/blog/*        get     binary  blog

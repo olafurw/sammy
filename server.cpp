@@ -76,7 +76,7 @@ std::string server::plain_file_response(std::shared_ptr<domain> domain, const wo
     return response;
 }
 
-std::string server::python_response(std::shared_ptr<domain> domain, const wot::path& path)
+std::string server::python_response(std::shared_ptr<domain> domain, const wot::path& path, std::string data)
 {
     std::string response = "";
 
@@ -173,38 +173,58 @@ void server::handle()
         }
 
         // If this request is a hostname we are serving and this is a GET request
-        if(domain->is_hostname(client_request.get_host()) && client_request.get_method() == "GET")
+        if(domain->is_hostname(client_request.get_host()))
         {
-            // Get path information from the request
-            wot::path path = domain->get_path(client_request.get_path());
+            if(client_request.get_method() == "GET")
+            {
+                // Get path information from the request
+                wot::path path = domain->get_path(wot::method_type::get, client_request.get_path());
 
-            // If the path type is unknown, we might have a wildcard type
-            if(path.type == wot::path_type::unknown)
-            {
-                path = domain->find_wildcard_path(client_request.get_path());
-            }
+                // If the path type is unknown, we might have a wildcard type
+                if(path.type == wot::path_type::unknown)
+                {
+                    path = domain->find_wildcard_path(wot::method_type::get, client_request.get_path());
+                }
 
-            m_log->write(wot::log::type::info) << "Request: " << domain->get_location() << " - " << path.request << " - " << path.file << std::endl;
+                m_log->write(wot::log::type::info) << "Get Request: " << domain->get_location() << " - " << path.request << " - " << path.file << std::endl;
 
-            // Request is for a static file, we get that response
-            if(client_request.get_path().find("/static/") == 0)
-            {
-                response = static_file_response(domain, client_request);
+                // Request is for a static file, we get that response
+                if(client_request.get_path().find("/static/") == 0)
+                {
+                    response = static_file_response(domain, client_request);
+                }
+                // Request is for a plain file
+                else if(path.request.size() > 0 && path.type == wot::path_type::plain)
+                {
+                    response = plain_file_response(domain, path);
+                }
+                // Request is for a python file
+                else if(path.request.size() > 0 && path.type == wot::path_type::python)
+                {
+                    response = python_response(domain, path);
+                }
+                // Request is for a binary file
+                else if(path.request.size() > 0 && path.type == wot::path_type::binary)
+                {
+                    response = binary_response(domain, path, client_request);
+                }
             }
-            // Request is for a plain file
-            else if(path.request.size() > 0 && path.type == wot::path_type::plain)
+            else if(client_request.get_method() == "POST")
             {
-                response = plain_file_response(domain, path);
-            }
-            // Request is for a python file
-            else if(path.request.size() > 0 && path.type == wot::path_type::python)
-            {
-                response = python_response(domain, path);
-            }
-            // Request is for a binary file
-            else if(path.request.size() > 0 && path.type == wot::path_type::binary)
-            {
-                response = binary_response(domain, path, client_request);
+                // Get path information from the request
+                wot::path path = domain->get_path(wot::method_type::post, client_request.get_path());
+
+                // If the path type is unknown, we might have a wildcard type
+                if(path.type == wot::path_type::unknown)
+                {
+                    path = domain->find_wildcard_path(wot::method_type::post, client_request.get_path());
+                }
+
+                m_log->write(wot::log::type::info) << "Post Request: " << domain->get_location() << " - " << path.request << " - " << path.file << std::endl;
+                if(path.request.size() > 0 && path.type == wot::path_type::python)
+                {
+                    response = python_response(domain, path, client_request.get_post_data());
+                }
             }
         }
 

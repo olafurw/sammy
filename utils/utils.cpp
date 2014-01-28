@@ -20,6 +20,26 @@ namespace utils
     {
         return ltrim(rtrim(s));
     }
+    
+    std::string ltrim(const std::string& s)
+    {
+        std::string tmp_str = s;
+        tmp_str.erase(tmp_str.begin(), std::find_if(tmp_str.begin(), tmp_str.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
+        return tmp_str;
+    }
+
+    std::string rtrim(const std::string& s)
+    {
+        std::string tmp_str = s;
+        tmp_str.erase(std::find_if(tmp_str.rbegin(), tmp_str.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), tmp_str.end());
+        return tmp_str;
+    }
+
+    std::string trim(const std::string& s)
+    {
+        std::string tmp_str = s;
+        return ltrim(rtrim(tmp_str));
+    }
 
     std::vector<std::string> split_string(const std::string& str, char token)
     {

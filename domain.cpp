@@ -23,7 +23,7 @@ void domain::set_404(const std::string& file_404)
 
 void domain::add_path(const wot::path& path)
 {
-    m_paths[path.request] = path;
+    m_paths[path.method][path.request] = path;
 }
 
 bool domain::is_hostname(const std::string& hostname)
@@ -41,16 +41,16 @@ std::string domain::get_404()
     return m_404;
 }
 
-wot::path domain::get_path(const std::string& path)
+wot::path domain::get_path(wot::method_type method, const std::string& path)
 {
-    return m_paths[path];
+    return m_paths[method][path];
 }
 
-wot::path domain::find_wildcard_path(const std::string& path)
+wot::path domain::find_wildcard_path(wot::method_type method, const std::string& path)
 {
     wot::path result;
 
-    for(auto& kv: m_paths)
+    for(auto& kv: m_paths[method])
     {
         if(wot::utils::ends_with(kv.first, "*"))
         {
