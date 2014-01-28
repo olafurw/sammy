@@ -60,8 +60,6 @@ std::string server::static_file_response(std::shared_ptr<domain> domain, const w
 
 std::string server::plain_file_response(std::shared_ptr<domain> domain, const wot::path& path)
 {
-    std::string base64test = "How are you this day my good sir??";
-    std::cout << wot::utils::base64_encode(base64test) << std::endl;
     std::string response = "";
 
     std::string file_path = domain->get_location()  + "/" +  path.file;
@@ -78,11 +76,16 @@ std::string server::plain_file_response(std::shared_ptr<domain> domain, const wo
     return response;
 }
 
-std::string server::python_response(std::shared_ptr<domain> domain, const wot::path& path, std::string data)
+std::string server::python_response(std::shared_ptr<domain> domain, const wot::path& path, std::string post_data)
 {
     std::string response = "";
 
-    std::string file_path = "python " + domain->get_location() + "/" +  path.file;
+    if(post_data != "")
+    {
+        post_data = wot::utils::base64_encode(post_data);
+    }
+
+    std::string file_path = "python " + domain->get_location() + "/" +  path.file + " " + post_data;
     m_log->write(wot::log::type::info) << "Request for python file: " << file_path << std::endl;
 
     // Open the file and put it into a string
@@ -96,13 +99,18 @@ std::string server::python_response(std::shared_ptr<domain> domain, const wot::p
     return response;
 }
 
-std::string server::binary_response(std::shared_ptr<domain> domain, const wot::path& path, const wot::request& request)
+std::string server::binary_response(std::shared_ptr<domain> domain, const wot::path& path, const wot::request& request, std::string post_data)
 {
     std::string response = "";
+    
+    if(post_data != "")
+    {
+        post_data = wot::utils::base64_encode(post_data);
+    }
 
     std::string sanitized_get_path = wot::utils::sanitize_string(request.get_path());
 
-    std::string file_path = domain->get_location() + "/" +  path.file + " " + sanitized_get_path;
+    std::string file_path = domain->get_location() + "/" +  path.file + " " + sanitized_get_path + " " + post_data;
     m_log->write(wot::log::type::info) << "Request for binary file: " << file_path << " with argument " << sanitized_get_path << " (" << request.get_path() << ")" << std::endl;
 
     // Open the file and put it into a string
