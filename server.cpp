@@ -3,14 +3,20 @@
 namespace wot
 {
 
-server::server(int sockfd, std::shared_ptr<wot::domains> domains)
+server::server(int sockfd)
 {
     // Init the logger
     m_log = std::unique_ptr<wot::log>(new wot::log(std::cout));
 
     m_sockfd = sockfd;
     
-    m_domains = domains;
+    // Init the domain config loading
+    m_domains = std::unique_ptr<wot::domains>(new wot::domains());
+    if(m_domains->errors())
+    {
+        m_log->write(wot::log::type::error) << "Error loading allowed domains config." << std::endl;
+        exit(1);
+    }
 }
 
 void server::read_request(size_t& read_result, std::string& buffer_str)

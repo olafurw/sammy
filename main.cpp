@@ -38,20 +38,8 @@ int main(int argc, char *argv[])
 
     // Listen on the socket, with possible 20 connections that can wait in the backlog
     listen(sockfd, 20);
-    log->write(wot::log::type::info) << "Listening to socket." << std::endl;
-
     log->write(wot::log::type::info) << "Server Started." << std::endl;
     
-    // Init the domain config loading
-    auto domains = std::make_shared<wot::domains>();
-    if(domains->errors())
-    {
-        log->write(wot::log::type::error) << "Error loading allowed domains config." << std::endl;
-        exit(1);
-    }
-
-    log->write(wot::log::type::info) << "Allowed domains config loaded." << std::endl;
-
     std::mutex process_mutex;
     std::vector<std::thread::id> process_ids;
    
@@ -73,13 +61,13 @@ int main(int argc, char *argv[])
         log->write(wot::log::type::info) << "Request accepted from: " << inet_str << std::endl;
 
         // Spawn the handling thread and detach it, let it finish on its own
-        std::thread thread { [ newsockfd, domains, &process_mutex, &process_ids ]() {
+        std::thread thread { [ newsockfd, &process_mutex, &process_ids ]() {
                                 // Store the thread id in the process list
                                 process_mutex.lock();
                                 process_ids.push_back(std::this_thread::get_id());
                                 process_mutex.unlock();
 
-                                wot::server server{ newsockfd, domains };
+                                wot::server server{ newsockfd };
                                 server.handle();
                                 
                                 // Remove the thread id from the process list, since we are done handling the request
