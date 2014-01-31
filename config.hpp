@@ -16,14 +16,14 @@ namespace wot
 class domains
 {
 public:
-    domains();
+    domains(std::shared_ptr<wot::log> log);
     bool errors();
 
     bool is_domain(const std::string& domain);
     std::shared_ptr<domain> get_domain(const std::string& domain);
 
 private:
-    std::unique_ptr<wot::log> m_log;
+    std::shared_ptr<wot::log> m_log;
     std::map<std::string, std::shared_ptr<domain>> m_domains;
 
     int m_error;

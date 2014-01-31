@@ -2,9 +2,9 @@
 
 namespace wot
 {
-request::request(const std::string& r)
+request::request(std::shared_ptr<wot::log> log, const std::string& r)
 {
-    m_log = std::unique_ptr<wot::log>(new wot::log(std::cout));
+    m_log = log;
     m_log->info() << "Started request." << std::endl;
 
     m_error = 0;

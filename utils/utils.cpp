@@ -132,6 +132,14 @@ namespace utils
         return result;
     }
 
+    time_t current_time()
+    {
+        time_t rawtime;
+        time(&rawtime);
+        
+        return rawtime;
+    }
+
     bool ends_with(const std::string& str, const std::string& search)
     {
         unsigned int str_length = str.length();

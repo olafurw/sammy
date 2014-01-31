@@ -13,7 +13,7 @@ namespace wot
 class request
 {
 public:
-    request(const std::string& request);
+    request(std::shared_ptr<wot::log> log, const std::string& request);
 
     std::string get_host() const;
     std::string get_path() const;
@@ -34,7 +34,7 @@ private:
     std::string m_post_data;
     int m_error;
 
-    std::unique_ptr<wot::log> m_log;
+    std::shared_ptr<wot::log> m_log;
 };
 }
 

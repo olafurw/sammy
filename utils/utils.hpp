@@ -40,6 +40,7 @@ namespace utils
     std::string program_to_string(const std::string& run, const std::string& argument = "");
 
     std::unique_ptr<std::string> current_time(const char* format);
+    time_t current_time();
 
     bool ends_with(const std::string& str, const std::string& search);
     int line_containing(const std::string& value, const std::vector<std::string>& request_lines);

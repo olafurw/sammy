@@ -5,9 +5,10 @@ namespace wot
 log::log(std::ostream& out)
 {
     m_out = &out;
+    m_last_flush = 0;
 }
 
-std::ostream& log::write(wot::log::type log_type)
+std::stringstream& log::write(wot::log::type log_type)
 {
     std::string type_string = "";
 
@@ -31,28 +32,43 @@ std::ostream& log::write(wot::log::type log_type)
     }
 
     std::unique_ptr<std::string> ctime = wot::utils::current_time("%Y-%m-%d %H:%M:%S");
-    *m_out << "[" << type_string << "] " << *ctime << " " << std::flush;
-    return *m_out;
+    m_ss << "[" << type_string << "] " << *ctime << " ";
+    return m_ss;
 }
 
-std::ostream& log::info()
+std::stringstream& log::info()
 {
     return write(wot::log::type::info);
 }
 
-std::ostream& log::warning()
+std::stringstream& log::warning()
 {
     return write(wot::log::type::warning);
 }
 
-std::ostream& log::error()
+std::stringstream& log::error()
 {
     return write(wot::log::type::error);
 }
 
-std::ostream& log::debug()
+std::stringstream& log::debug()
 {
     return write(wot::log::type::debug);
+}
+
+void log::flush()
+{
+    time_t current = wot::utils::current_time();
+
+    // Not completely portable
+    // If there are 10 seconds since we last flushed, then we do
+    if((current - m_last_flush) > 10)
+    {
+        *m_out << m_ss.str() << std::flush;
+        m_ss.clear();
+
+        m_last_flush = current;
+    }
 }
 
 }

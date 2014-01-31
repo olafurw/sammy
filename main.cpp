@@ -16,7 +16,7 @@
 int main(int argc, char *argv[])
 {
     // Init the logger
-    auto log = std::unique_ptr<wot::log>(new wot::log(std::cout));
+    auto log = std::make_shared<wot::log>(std::cout);
     log->info() << "Starting Server." << std::endl;
     
     // Create the socket and set the socket options
@@ -42,6 +42,8 @@ int main(int argc, char *argv[])
     
     std::mutex process_mutex;
     std::vector<std::thread::id> process_ids;
+
+    log->flush();
    
     while( true )
     {
@@ -60,15 +62,20 @@ int main(int argc, char *argv[])
         inet_ntop(cli_addr.sin_family, &(cli_addr.sin_addr), inet_str, INET_ADDRSTRLEN);
         log->info() << "Request accepted from: " << inet_str << std::endl;
 
+        log->flush();
+
         // Spawn the handling thread and detach it, let it finish on its own
-        std::thread thread { [ newsockfd, &process_mutex, &process_ids ]() {
+        std::thread thread { [ newsockfd, &process_mutex, &process_ids, log ]() {
                                 // Store the thread id in the process list
                                 process_mutex.lock();
                                 process_ids.push_back(std::this_thread::get_id());
                                 process_mutex.unlock();
 
-                                wot::server server{ newsockfd };
+                                wot::server server{ log, newsockfd };
                                 server.handle();
+
+                                // When done, we flush the log, which writes it out
+                                log->flush();
                                 
                                 // Remove the thread id from the process list, since we are done handling the request
                                 process_mutex.lock();

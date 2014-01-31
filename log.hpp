@@ -5,6 +5,7 @@
 #include <string>
 #include <fstream>
 #include <memory>
+#include <sstream>
 
 #include "utils/utils.hpp"
 
@@ -23,14 +24,19 @@ public:
 
     log(std::ostream& output);
 
-    std::ostream& info();
-    std::ostream& warning();
-    std::ostream& error();
-    std::ostream& debug();
+    std::stringstream& info();
+    std::stringstream& warning();
+    std::stringstream& error();
+    std::stringstream& debug();
+
+    void flush();
 
 private:
-    std::ostream& write(wot::log::type log_type);
+    std::stringstream& write(wot::log::type log_type);
+
     std::ostream* m_out;
+    std::stringstream m_ss;
+    time_t m_last_flush;
 };
 }
 

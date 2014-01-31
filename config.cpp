@@ -2,9 +2,9 @@
 
 namespace wot
 {
-domains::domains()
+domains::domains(std::shared_ptr<wot::log> log)
 {
-    m_log = std::unique_ptr<wot::log>(new wot::log(std::cout));
+    m_log = log;
     m_error = 0;
 
     std::ifstream domain_lists("config/domains.wl");

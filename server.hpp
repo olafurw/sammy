@@ -26,7 +26,7 @@ namespace wot
 class server
 {
 public:
-    server(int sockfd);
+    server(std::shared_ptr<wot::log> log, int sockfd);
     void handle();
     ~server();
 
@@ -41,7 +41,7 @@ private:
 
     int m_sockfd;
 
-    std::unique_ptr<wot::log> m_log;
+    std::shared_ptr<wot::log> m_log;
     std::unique_ptr<wot::domains> m_domains;
 };
 }
