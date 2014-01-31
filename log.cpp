@@ -40,17 +40,17 @@ std::ostream& log::info()
     return write(wot::log::type::info);
 }
 
-std::ostream& log::warning();
+std::ostream& log::warning()
 {
     return write(wot::log::type::warning);
 }
 
-std::ostream& log::error();
+std::ostream& log::error()
 {
     return write(wot::log::type::error);
 }
 
-std::ostream& log::debug();
+std::ostream& log::debug()
 {
     return write(wot::log::type::debug);
 }
