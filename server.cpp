@@ -14,14 +14,14 @@ server::server(int sockfd)
     m_domains = std::unique_ptr<wot::domains>(new wot::domains());
     if(m_domains->errors())
     {
-        m_log->write(wot::log::type::error) << "Error loading allowed domains config." << std::endl;
+        m_log->error() << "Error loading allowed domains config." << std::endl;
         exit(1);
     }
 }
 
 void server::read_request(size_t& read_result, std::string& buffer_str)
 {
-    m_log->write(wot::log::type::info) << "Starting to read the request" << std::endl;
+    m_log->info() << "Starting to read the request" << std::endl;
 
     const unsigned int read_size = 8192;
 
@@ -33,13 +33,13 @@ void server::read_request(size_t& read_result, std::string& buffer_str)
     size_t peek_size = recv(m_sockfd, &p, 1, MSG_PEEK);
     if(peek_size < 1)
     {
-        m_log->write(wot::log::type::info) << "Peek returned: " << peek_size << std::endl;
+        m_log->info() << "Peek returned: " << peek_size << std::endl;
         
         read_result = peek_size;
         return;
     }
 
-    m_log->write(wot::log::type::info) << "Peek confirmed, data to read" << std::endl;
+    m_log->info() << "Peek confirmed, data to read" << std::endl;
 
     read_result = read(m_sockfd, buffer, read_size - 1);
     buffer_str = buffer;
@@ -51,7 +51,7 @@ std::string server::static_file_response(std::shared_ptr<domain> domain, const w
 
     // Get the file path
     std::string file_path = domain->get_location() + request.get_path();
-    m_log->write(wot::log::type::info) << "Request for static file: " << file_path << std::endl;
+    m_log->info() << "Request for static file: " << file_path << std::endl;
 
     // Open the file and put it into a string
     std::string file_data = wot::utils::file_to_string(file_path.c_str());
@@ -69,7 +69,7 @@ std::string server::plain_file_response(std::shared_ptr<domain> domain, const wo
     std::string response = "";
 
     std::string file_path = domain->get_location()  + "/" +  path.file;
-    m_log->write(wot::log::type::info) << "Request for plain file: " << file_path << std::endl;
+    m_log->info() << "Request for plain file: " << file_path << std::endl;
 
     // Open the file and put it into a string
     std::string file_data = wot::utils::file_to_string(file_path.c_str());
@@ -92,7 +92,7 @@ std::string server::python_response(std::shared_ptr<domain> domain, const wot::p
     }
 
     std::string file_path = "python " + domain->get_location() + "/" +  path.file + " " + post_data;
-    m_log->write(wot::log::type::info) << "Request for python file: " << file_path << std::endl;
+    m_log->info() << "Request for python file: " << file_path << std::endl;
 
     // Open the file and put it into a string
     std::string file_data = wot::utils::program_to_string(file_path);
@@ -117,7 +117,7 @@ std::string server::binary_response(std::shared_ptr<domain> domain, const wot::p
     std::string sanitized_get_path = wot::utils::sanitize_string(request.get_path());
 
     std::string file_path = domain->get_location() + "/" +  path.file + " " + sanitized_get_path + " " + post_data;
-    m_log->write(wot::log::type::info) << "Request for binary file: " << file_path << " with argument " << sanitized_get_path << " (" << request.get_path() << ")" << std::endl;
+    m_log->info() << "Request for binary file: " << file_path << " with argument " << sanitized_get_path << " (" << request.get_path() << ")" << std::endl;
 
     // Open the file and put it into a string
     std::string file_data = wot::utils::program_to_string(file_path);
@@ -148,8 +148,8 @@ void server::handle()
         // If the read result isn't ok
         if(read_result == -1)
         {
-            m_log->write(wot::log::type::error) << "Error reading from socket: " << read_result << std::endl;
-            m_log->write(wot::log::type::error) << request_str << std::endl;
+            m_log->error() << "Error reading from socket: " << read_result << std::endl;
+            m_log->error() << request_str << std::endl;
 
             close(m_sockfd);
             return;
@@ -158,19 +158,19 @@ void server::handle()
         // The request string is empty
         if(request_str.empty())
         {
-            m_log->write(wot::log::type::error) << "Request string empty!" <<  std::endl;
+            m_log->error() << "Request string empty!" <<  std::endl;
 
             close(m_sockfd);
             return;
         }
 
-        m_log->write(wot::log::type::info) << "Request string: " << std::endl << request_str << std::endl;
+        m_log->info() << "Request string: " << std::endl << request_str << std::endl;
 
         // Parse request string
         wot::request client_request(request_str);
         if(client_request.errors())
         {
-            m_log->write(wot::log::type::error) << "Error parsing request string." <<  std::endl;
+            m_log->error() << "Error parsing request string." <<  std::endl;
 
             close(m_sockfd);
             return;
@@ -182,7 +182,7 @@ void server::handle()
 
         if(!domain)
         {
-            m_log->write(wot::log::type::warning) << "Domain: " << client_request.get_host() << " not in allowed list!" << std::endl;
+            m_log->error() << "Domain: " << client_request.get_host() << " not in allowed list!" << std::endl;
 
             close(m_sockfd);
             return;
@@ -202,7 +202,7 @@ void server::handle()
                     path = domain->find_wildcard_path(wot::method_type::get, client_request.get_path());
                 }
 
-                m_log->write(wot::log::type::info) << "Get Request: " << domain->get_location() << " - " << path.request << " - " << path.file << std::endl;
+                m_log->info() << "Get Request: " << domain->get_location() << " - " << path.request << " - " << path.file << std::endl;
 
                 // Request is for a static file, we get that response
                 if(client_request.get_path().find("/static/") == 0)
@@ -236,7 +236,7 @@ void server::handle()
                     path = domain->find_wildcard_path(wot::method_type::post, client_request.get_path());
                 }
 
-                m_log->write(wot::log::type::info) << "Post Request: " << domain->get_location() << " - " << path.request << " - " << path.file << std::endl;
+                m_log->info() << "Post Request: " << domain->get_location() << " - " << path.request << " - " << path.file << std::endl;
                 if(path.request.size() > 0 && path.type == wot::path_type::python)
                 {
                     response = python_response(domain, path, client_request.get_post_data());

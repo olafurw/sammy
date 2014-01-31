@@ -49,7 +49,7 @@ namespace utils
     
         while(std::getline(ss, segment, token))
         {
-            segments.push_back(segment);
+            segments.emplace_back(std::move(segment));
         }
     
         return segments;

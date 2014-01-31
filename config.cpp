@@ -27,7 +27,7 @@ domains::domains()
         }
         domain_hostnames.close();
 
-        m_log->write(wot::log::type::info) << domain_prefix << " Hostname parsing complete." << std::endl;
+        m_log->info() << domain_prefix << " Hostname parsing complete." << std::endl;
 
         // Location
         std::ifstream domain_location("config/" + domain_prefix + ".location");
@@ -36,7 +36,7 @@ domains::domains()
         domain->set_location(wot::utils::trim(location));
         domain_location.close();
 
-        m_log->write(wot::log::type::info) << domain_prefix << " Location parsing complete." << std::endl;
+        m_log->info() << domain_prefix << " Location parsing complete." << std::endl;
 
         // Paths
         std::ifstream domain_paths("config/" + domain_prefix + ".paths");
@@ -90,7 +90,7 @@ domains::domains()
         }
         domain_paths.close();
         
-        m_log->write(wot::log::type::info) << domain_prefix << " Path parsing complete." << std::endl;
+        m_log->info() << domain_prefix << " Path parsing complete." << std::endl;
 
         // 404
         std::ifstream domain_404("config/" + domain_prefix + ".404");
@@ -99,9 +99,9 @@ domains::domains()
         domain->set_404(wot::utils::trim(file_404));
         domain_404.close();
 
-        m_log->write(wot::log::type::info) << domain_prefix << " 404 parsing loaded." << std::endl;
+        m_log->info() << domain_prefix << " 404 parsing loaded." << std::endl;
 
-        m_log->write(wot::log::type::info) << domain_prefix << " Config loaded." << std::endl;
+        m_log->info() << domain_prefix << " Config loaded." << std::endl;
     }
 
     domain_lists.close();

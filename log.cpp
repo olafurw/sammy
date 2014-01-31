@@ -34,4 +34,25 @@ std::ostream& log::write(wot::log::type log_type)
     *m_out << "[" << type_string << "] " << *ctime << " " << std::flush;
     return *m_out;
 }
+
+std::ostream& log::info()
+{
+    return write(wot::log::type::info);
+}
+
+std::ostream& log::warning();
+{
+    return write(wot::log::type::warning);
+}
+
+std::ostream& log::error();
+{
+    return write(wot::log::type::error);
+}
+
+std::ostream& log::debug();
+{
+    return write(wot::log::type::debug);
+}
+
 }

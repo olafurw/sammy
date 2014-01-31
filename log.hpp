@@ -23,9 +23,13 @@ public:
 
     log(std::ostream& output);
 
-    std::ostream& write(wot::log::type log_type);
+    std::ostream& info();
+    std::ostream& warning();
+    std::ostream& error();
+    std::ostream& debug();
 
 private:
+    std::ostream& write(wot::log::type log_type);
     std::ostream* m_out;
 };
 }

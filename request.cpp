@@ -5,7 +5,7 @@ namespace wot
 request::request(const std::string& r)
 {
     m_log = std::unique_ptr<wot::log>(new wot::log(std::cout));
-    m_log->write(wot::log::type::info) << "Started request." << std::endl;
+    m_log->info() << "Started request." << std::endl;
 
     m_error = 0;
     m_method = "";
@@ -31,7 +31,7 @@ request::request(const std::string& r)
         return;
     }
 
-    m_log->write(wot::log::type::info) << "Request parsed: " << m_method << " " << m_host << " " << m_path << std::endl;
+    m_log->info() << "Request parsed: " << m_method << " " << m_host << " " << m_path << std::endl;
 }
 
 void request::parse_header(const std::string& header)
@@ -91,7 +91,7 @@ void request::parse_cookies(const std::vector<std::string>& request_lines)
         return;
     }
     
-    m_log->write(wot::log::type::info) << "Cookie: " << request_lines.at(cookieindex) << std::endl;
+    m_log->info() << "Cookie: " << request_lines.at(cookieindex) << std::endl;
 }
 
 void request::parse_post_data(const std::vector<std::string>& request_lines)

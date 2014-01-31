@@ -5,3 +5,4 @@
 /favicon.ico   get     plain   favicon.ico
 /about         get     plain   about.html
 /blog/*        get     binary  blog
+/speki         get     python  speki.py
