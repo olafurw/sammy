@@ -6,6 +6,8 @@
 #include <fstream>
 #include <memory>
 #include <sstream>
+#include <thread>
+#include <mutex>
 
 #include "utils/utils.hpp"
 
@@ -37,6 +39,7 @@ private:
     std::ostream* m_out;
     std::stringstream m_ss;
     time_t m_last_flush;
+    std::mutex m_mutex;
 };
 }
 

@@ -2,11 +2,8 @@
 
 namespace wot
 {
-request::request(std::shared_ptr<wot::log> log, const std::string& r)
+request::request(const std::string& r)
 {
-    m_log = log;
-    m_log->info() << "Started request." << std::endl;
-
     m_error = 0;
     m_method = "";
     m_path = "";
@@ -30,8 +27,6 @@ request::request(std::shared_ptr<wot::log> log, const std::string& r)
         m_error = 1;
         return;
     }
-
-    m_log->info() << "Request parsed: " << m_method << " " << m_host << " " << m_path << std::endl;
 }
 
 void request::parse_header(const std::string& header)
@@ -90,8 +85,6 @@ void request::parse_cookies(const std::vector<std::string>& request_lines)
     {
         return;
     }
-    
-    m_log->info() << "Cookie: " << request_lines.at(cookieindex) << std::endl;
 }
 
 void request::parse_post_data(const std::vector<std::string>& request_lines)

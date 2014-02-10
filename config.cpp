@@ -2,9 +2,8 @@
 
 namespace wot
 {
-domains::domains(std::shared_ptr<wot::log> log)
+domains::domains()
 {
-    m_log = log;
     m_error = 0;
 
     std::ifstream domain_lists("config/domains.wl");
@@ -27,16 +26,12 @@ domains::domains(std::shared_ptr<wot::log> log)
         }
         domain_hostnames.close();
 
-        m_log->info() << domain_prefix << " Hostname parsing complete." << std::endl;
-
         // Location
         std::ifstream domain_location("config/" + domain_prefix + ".location");
         std::string location;
         std::getline(domain_location, location);
         domain->set_location(wot::utils::trim(location));
         domain_location.close();
-
-        m_log->info() << domain_prefix << " Location parsing complete." << std::endl;
 
         // Paths
         std::ifstream domain_paths("config/" + domain_prefix + ".paths");
@@ -90,18 +85,12 @@ domains::domains(std::shared_ptr<wot::log> log)
         }
         domain_paths.close();
         
-        m_log->info() << domain_prefix << " Path parsing complete." << std::endl;
-
         // 404
         std::ifstream domain_404("config/" + domain_prefix + ".404");
         std::string file_404;
         std::getline(domain_404, file_404);
         domain->set_404(wot::utils::trim(file_404));
         domain_404.close();
-
-        m_log->info() << domain_prefix << " 404 parsing loaded." << std::endl;
-
-        m_log->info() << domain_prefix << " Config loaded." << std::endl;
     }
 
     domain_lists.close();

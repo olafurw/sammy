@@ -6,14 +6,13 @@
 #include <memory>
 
 #include "utils/utils.hpp"
-#include "log.hpp"
 
 namespace wot
 {
 class request
 {
 public:
-    request(std::shared_ptr<wot::log> log, const std::string& request);
+    request(const std::string& request);
 
     std::string get_host() const;
     std::string get_path() const;
@@ -33,8 +32,6 @@ private:
     std::string m_host;
     std::string m_post_data;
     int m_error;
-
-    std::shared_ptr<wot::log> m_log;
 };
 }
 

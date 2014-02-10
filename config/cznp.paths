@@ -6,3 +6,5 @@
 /about         get     plain   about.html
 /blog/*        get     binary  blog
 /speki         get     python  speki.py
+/wl            get     plain   wl.html
+/wl            post    python  wl.py

@@ -10,6 +10,7 @@ log::log(std::ostream& out)
 
 std::stringstream& log::write(wot::log::type log_type)
 {
+    std::lock_guard<std::mutex> s_lock(m_mutex);
     std::string type_string = "";
 
     switch(log_type)
@@ -58,13 +59,15 @@ std::stringstream& log::debug()
 
 void log::flush()
 {
+    std::lock_guard<std::mutex> s_lock(m_mutex);
+
     time_t current = wot::utils::current_time();
 
     // Not completely portable
     // If there are 10 seconds since we last flushed, then we do
     if((current - m_last_flush) > 10)
     {
-        *m_out << m_ss.str() << std::flush;
+        //*m_out << m_ss.str() << std::flush;
         m_ss.clear();
 
         m_last_flush = current;

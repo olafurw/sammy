@@ -9,21 +9,19 @@
 
 #include "domain.hpp"
 #include "utils/utils.hpp"
-#include "log.hpp"
 
 namespace wot
 {
 class domains
 {
 public:
-    domains(std::shared_ptr<wot::log> log);
+    domains();
     bool errors();
 
     bool is_domain(const std::string& domain);
     std::shared_ptr<domain> get_domain(const std::string& domain);
 
 private:
-    std::shared_ptr<wot::log> m_log;
     std::map<std::string, std::shared_ptr<domain>> m_domains;
 
     int m_error;

@@ -100,7 +100,7 @@ namespace utils
     {
         FILE* in;
         std::stringstream ss;
-        std::string run_command = run + " " + argument;
+        std::string run_command = run + " " + argument + " 2>&1";
 
         if((in = popen(run_command.c_str(), "r")))
         {

@@ -9,16 +9,11 @@
 #include <mutex>
 
 #include "utils/utils.hpp"
-#include "log.hpp"
 #include "request.hpp"
 #include "server.hpp"
 
 int main(int argc, char *argv[])
 {
-    // Init the logger
-    auto log = std::make_shared<wot::log>(std::cout);
-    log->info() << "Starting Server." << std::endl;
-    
     // Create the socket and set the socket options
     int portno{ 80 };
     int sockfd{ socket(AF_INET, SOCK_STREAM, 0) };
@@ -34,23 +29,15 @@ int main(int argc, char *argv[])
 
     // Bind the socket with the address information given above
     bind(sockfd, (sockaddr*)&serv_addr, sizeof(serv_addr));
-    log->info() << "Socket Bound." << std::endl;
 
     // Listen on the socket, with possible 20 connections that can wait in the backlog
     listen(sockfd, 20);
-    log->info() << "Server Started." << std::endl;
     
     std::mutex process_mutex;
     std::vector<std::thread::id> process_ids;
-
-    log->flush();
    
     while( true )
     {
-        // Accept socket request
-        log->info() << "Waiting for a request." << std::endl;
-        log->info() << "Currently: " << process_ids.size() << " processes alive." << std::endl;
-    
         sockaddr_in cli_addr;
         socklen_t clilen{ sizeof(cli_addr) };
 
@@ -60,23 +47,17 @@ int main(int argc, char *argv[])
         // Log who is requesting the data
         char inet_str[INET_ADDRSTRLEN];
         inet_ntop(cli_addr.sin_family, &(cli_addr.sin_addr), inet_str, INET_ADDRSTRLEN);
-        log->info() << "Request accepted from: " << inet_str << std::endl;
-
-        log->flush();
 
         // Spawn the handling thread and detach it, let it finish on its own
-        std::thread thread { [ newsockfd, &process_mutex, &process_ids, log ]() {
+        std::thread thread { [ newsockfd, &process_mutex, &process_ids ]() {
                                 // Store the thread id in the process list
                                 process_mutex.lock();
                                 process_ids.push_back(std::this_thread::get_id());
                                 process_mutex.unlock();
 
-                                wot::server server{ log, newsockfd };
+                                wot::server server{ newsockfd };
                                 server.handle();
 
-                                // When done, we flush the log, which writes it out
-                                log->flush();
-                                
                                 // Remove the thread id from the process list, since we are done handling the request
                                 process_mutex.lock();
                                 process_ids.erase(std::remove(process_ids.begin(), process_ids.end(), std::this_thread::get_id()), process_ids.end());
