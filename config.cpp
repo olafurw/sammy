@@ -85,6 +85,17 @@ domains::domains()
         }
         domain_paths.close();
         
+        // Blacklist
+        std::ifstream domain_blacklist("config/" + domain_prefix + ".blacklist");
+        std::string blacklist;
+        while(std::getline(domain_blacklist, blacklist))
+        {
+            std::string trimmed_blacklist = wot::utils::trim(blacklist);
+
+            domain->add_blacklist(trimmed_blacklist);
+        }
+        domain_blacklist.close();
+
         // 404
         std::ifstream domain_404("config/" + domain_prefix + ".404");
         std::string file_404;

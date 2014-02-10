@@ -47,11 +47,13 @@ public:
     domain();
 
     void add_hostname(const std::string& hostname);
+    void add_blacklist(const std::string& blacklist);
     void set_location(const std::string& location);
     void set_404(const std::string& file_404);
     void add_path(const wot::path& path);
 
     bool is_hostname(const std::string& hostname);
+    bool is_blacklisted(const std::string& blacklist);
     std::string get_location();
     std::string get_404();
     wot::path get_path(wot::method_type method, const std::string& path);
@@ -59,6 +61,7 @@ public:
 
 private:
     std::vector<std::string> m_hostnames;
+    std::vector<std::string> m_blacklist;
     std::string m_location;
     std::string m_404;
     std::map<wot::method_type, std::map<std::string, wot::path>> m_paths;

@@ -160,8 +160,18 @@ void server::handle()
         std::string response = "";
         std::shared_ptr<domain> domain = m_domains->get_domain(client_request.get_host());
 
+        // If this server does not serve the domain being asked for, we close the connection.
         if(!domain)
         {
+            m_log->error(m_client_address + " : " + client_request.get_host() + " : " + client_request.get_method() + " : " + client_request.get_path() + " : Domain not served.");
+            close(m_sockfd);
+            return;
+        }
+
+        // If the client address is blacklisted, we close the connection.
+        if(domain->is_blacklisted(m_client_address))
+        {
+            m_log->error(m_client_address + " : " + client_request.get_host() + " : " + client_request.get_method() + " : " + client_request.get_path() + " : IP blacklisted.");
             close(m_sockfd);
             return;
         }

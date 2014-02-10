@@ -27,6 +27,7 @@ public:
     log();
 
     void info(const std::string& data);
+    void error(const std::string& data);
 
 private:
     void write(wot::log::type log_type, const std::string& data);

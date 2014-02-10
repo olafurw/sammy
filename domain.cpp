@@ -11,6 +11,11 @@ void domain::add_hostname(const std::string& hostname)
     m_hostnames.push_back(hostname);
 }
 
+void domain::add_blacklist(const std::string& blacklist)
+{
+    m_blacklist.push_back(blacklist);
+}
+
 void domain::set_location(const std::string& location)
 {
     m_location = location;
@@ -29,6 +34,11 @@ void domain::add_path(const wot::path& path)
 bool domain::is_hostname(const std::string& hostname)
 {
     return std::find(m_hostnames.begin(), m_hostnames.end(), hostname) != m_hostnames.end();
+}
+
+bool domain::is_blacklisted(const std::string& blacklist)
+{
+    return std::find(m_blacklist.begin(), m_blacklist.end(), blacklist) != m_blacklist.end();
 }
 
 std::string domain::get_location()

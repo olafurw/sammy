@@ -40,4 +40,9 @@ void log::info(const std::string& data)
     write(wot::log::type::info, data);
 }
 
+void log::error(const std::string& data)
+{
+    write(wot::log::type::error, data);
+}
+
 }
