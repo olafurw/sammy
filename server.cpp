@@ -3,9 +3,10 @@
 namespace wot
 {
 
-server::server(int sockfd)
+server::server(std::string client_address, int sockfd)
 {
     m_sockfd = sockfd;
+    m_client_address = client_address;
     
     // Init the domain config loading
     m_domains = std::unique_ptr<wot::domains>(new wot::domains());
@@ -13,6 +14,8 @@ server::server(int sockfd)
     {
         exit(1);
     }
+
+    m_log = std::unique_ptr<wot::log>(new wot::log());
 }
 
 void server::read_request(size_t& read_result, std::string& buffer_str)
@@ -219,8 +222,14 @@ void server::handle()
         // 404, response is empty.
         if(response.size() == 0)
         {
+            m_log->info(m_client_address + " : " + client_request.get_host() + " : " + client_request.get_method() + " : " + client_request.get_path() + " : SC 404");
             response = file_not_found_response(domain);
         }
+        else
+        {
+            m_log->info(m_client_address + " : " + client_request.get_host() + " : " + client_request.get_method() + " : " + client_request.get_path() + " : SC 200 : " + std::to_string(response.size()) + " bytes");
+        }
+
 
         write(m_sockfd, response.c_str(), response.size());
     }

@@ -48,14 +48,16 @@ int main(int argc, char *argv[])
         char inet_str[INET_ADDRSTRLEN];
         inet_ntop(cli_addr.sin_family, &(cli_addr.sin_addr), inet_str, INET_ADDRSTRLEN);
 
+        std::string client_address(inet_str);
+
         // Spawn the handling thread and detach it, let it finish on its own
-        std::thread thread { [ newsockfd, &process_mutex, &process_ids ]() {
+        std::thread thread { [ newsockfd, &process_mutex, &process_ids, client_address ]() {
                                 // Store the thread id in the process list
                                 process_mutex.lock();
                                 process_ids.push_back(std::this_thread::get_id());
                                 process_mutex.unlock();
 
-                                wot::server server{ newsockfd };
+                                wot::server server{ client_address, newsockfd };
                                 server.handle();
 
                                 // Remove the thread id from the process list, since we are done handling the request

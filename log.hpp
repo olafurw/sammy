@@ -24,21 +24,13 @@ public:
         debug = 4
     };
 
-    log(std::ostream& output);
+    log();
 
-    std::stringstream& info();
-    std::stringstream& warning();
-    std::stringstream& error();
-    std::stringstream& debug();
-
-    void flush();
+    void info(const std::string& data);
 
 private:
-    std::stringstream& write(wot::log::type log_type);
+    void write(wot::log::type log_type, const std::string& data);
 
-    std::ostream* m_out;
-    std::stringstream m_ss;
-    time_t m_last_flush;
     std::mutex m_mutex;
 };
 }

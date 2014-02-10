@@ -15,6 +15,7 @@
 #include <thread>
 #include <memory>
 
+#include "log.hpp"
 #include "utils/utils.hpp"
 #include "response.hpp"
 #include "request.hpp"
@@ -25,7 +26,7 @@ namespace wot
 class server
 {
 public:
-    server(int sockfd);
+    server(std::string client_address, int sockfd);
     void handle();
     ~server();
 
@@ -41,6 +42,8 @@ private:
     int m_sockfd;
 
     std::unique_ptr<wot::domains> m_domains;
+    std::unique_ptr<wot::log> m_log;
+    std::string m_client_address;
 };
 }
 
