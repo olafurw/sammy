@@ -8,7 +8,7 @@ std::string response(const std::string& message, const std::string& type)
 
     std::stringstream ss;
     ss << "HTTP/1.0 200 OK\n";
-    ss << "Server: tiaswot\n";
+    ss << "Server: sammy v0.1\n";
     ss << "MIME-version: 1.0\n";
     ss << "Content-type: " << type << "\n";
     ss << "Access-Control-Allow-Headers:accept, origin, x-requested-with, content-type\n";
