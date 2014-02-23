@@ -1,6 +1,27 @@
-waste of time - http server
+sammy web server
 ===
 
-Do not use this for any kind of production use, this will not work for you. Your computer will explode in a fiery fireball of fire.
+Sammy is a very small web server written in C++11 with no 3rd party dependencies.
 
-Creating a http server is something everybody should try.... right? Well this is my little project where I mess around creating one. The main ideas are no external dependencies and keep it small and simple.
+This server is not recommended for production use.
+
+Features
+---
+
+# 200 and 404 responses.
+# GET Support
+# Experimental POST support.
+# Can serve plain files.
+# Experimental wildcard url support.
+# Experimental python and binary file support, gives those files the url and encoded post data.
+# IP Blacklist support.
+# Can serve multiple domains.
+
+Missing features
+---
+
+# Caching of any kind.
+# Cookies.
+# Finalizing POST support.
+# Write libraries for other languages to parse data sent from server.
+# And more and more and more.
