@@ -26,22 +26,27 @@ namespace wot
 class server
 {
 public:
-    server(std::string client_address, int sockfd);
+    server(std::shared_ptr<wot::domain> domain,
+           std::shared_ptr<wot::request> request, 
+           std::string client_address, 
+           int sockfd);
+
     void handle();
     ~server();
 
 private:
     void accept_request();
     void read_request(size_t& read_result, std::string& buffer_str);
-    std::string static_file_response(std::shared_ptr<domain> domain, const wot::request& request);
-    std::string plain_file_response(std::shared_ptr<domain> domain, const wot::path& path);
-    std::string python_response(std::shared_ptr<domain> domain, const wot::path& path, std::string post_data = "");
-    std::string binary_response(std::shared_ptr<domain> domain, const wot::path& path, const wot::request& request, std::string post_data = "");
-    std::string file_not_found_response(std::shared_ptr<domain> domain);
+    std::string static_file_response();
+    std::string plain_file_response(const wot::path& path);
+    std::string python_response(const wot::path& path, std::string post_data = "");
+    std::string binary_response(const wot::path& path, std::string post_data = "");
+    std::string file_not_found_response();
 
     int m_sockfd;
 
-    std::unique_ptr<wot::domains> m_domains;
+    std::shared_ptr<wot::domain> m_domain;
+    std::shared_ptr<wot::request> m_request;
     std::unique_ptr<wot::log> m_log;
     std::string m_client_address;
 };
