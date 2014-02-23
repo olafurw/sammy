@@ -1,4 +1,4 @@
-sammy web server
+sammy web server v0.1
 ===
 
 Sammy is a very small web server written in C++11 with no 3rd party dependencies.
