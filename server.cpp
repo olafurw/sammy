@@ -166,12 +166,12 @@ void server::handle()
         // 404, response is empty.
         if(response.size() == 0)
         {
-            m_log->info(m_client_address + " : " + m_request->get_host() + " : " + m_request->get_method() + " : " + m_request->get_path() + " : SC 404");
+            m_log->info(m_client_address + " : " + m_request->get_host() + " : " + m_request->get_method() + " : " + m_request->get_path() + " : 404" + " : " + m_request->get_referer() + " : " + m_request->get_cookies());
             response = file_not_found_response();
         }
         else
         {
-            m_log->info(m_client_address + " : " + m_request->get_host() + " : " + m_request->get_method() + " : " + m_request->get_path() + " : SC 200 : " + std::to_string(response.size()) + " bytes");
+            m_log->info(m_client_address + " : " + m_request->get_host() + " : " + m_request->get_method() + " : " + m_request->get_path() + " : 200 : " + std::to_string(response.size()) + " : " + m_request->get_referer() + " : " + m_request->get_cookies());
         }
 
 
