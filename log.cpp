@@ -1,12 +1,12 @@
 #include "log.hpp"
 
-namespace wot
+namespace sammy
 {
 log::log()
 {
 }
 
-void log::write(wot::log::type log_type, const std::string& data)
+void log::write(sammy::log::type log_type, const std::string& data)
 {
     std::lock_guard<std::mutex> s_lock(m_mutex);
     std::string type_string = "";
@@ -30,19 +30,19 @@ void log::write(wot::log::type log_type, const std::string& data)
         break;
     }
 
-    std::unique_ptr<std::string> ctime = wot::utils::current_time("%Y-%m-%d %H:%M:%S");
+    std::unique_ptr<std::string> ctime = sammy::utils::current_time("%Y-%m-%d %H:%M:%S");
 
     std::cout << "[" << type_string << "] " << *ctime << " " << data << std::endl;
 }
 
 void log::info(const std::string& data)
 {
-    write(wot::log::type::info, data);
+    write(sammy::log::type::info, data);
 }
 
 void log::error(const std::string& data)
 {
-    write(wot::log::type::error, data);
+    write(sammy::log::type::error, data);
 }
 
 }

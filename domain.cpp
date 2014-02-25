@@ -1,6 +1,6 @@
 #include "domain.hpp"
 
-namespace wot
+namespace sammy 
 {
 domain::domain()
 {
@@ -26,7 +26,7 @@ void domain::set_404(const std::string& file_404)
     m_404 = file_404;
 }
 
-void domain::add_path(const wot::path& path)
+void domain::add_path(const sammy::path& path)
 {
     m_paths[path.method][path.request] = path;
 }
@@ -51,18 +51,18 @@ std::string domain::get_404()
     return m_404;
 }
 
-wot::path domain::get_path(wot::method_type method, const std::string& path)
+sammy::path domain::get_path(sammy::method_type method, const std::string& path)
 {
     return m_paths[method][path];
 }
 
-wot::path domain::find_wildcard_path(wot::method_type method, const std::string& path)
+sammy::path domain::find_wildcard_path(sammy::method_type method, const std::string& path)
 {
-    wot::path result;
+    sammy::path result;
 
     for(auto& kv: m_paths[method])
     {
-        if(wot::utils::ends_with(kv.first, "*"))
+        if(sammy::utils::ends_with(kv.first, "*"))
         {
             std::string trim_path = kv.first.substr(0, kv.first.size() - 1);
 

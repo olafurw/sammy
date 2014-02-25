@@ -34,7 +34,7 @@ void read_request(int sockfd, size_t& read_result, std::string& buffer_str)
 
 int main(int argc, char *argv[])
 {
-    auto log = std::unique_ptr<wot::log>(new wot::log());
+    auto log = std::unique_ptr<sammy::log>(new sammy::log());
 
     // Create the socket and set the socket options
     int portno{ 80 };
@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
     std::cout << "Starting server." << std::endl;
     
     // Init the domain config loading
-    auto domains = std::make_shared<wot::domains>();
+    auto domains = std::make_shared<sammy::domains>();
     if(domains->errors())
     {
         std::cout << "Error loading config!" << std::endl;
@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
         }
 
         // Parse request string
-        auto client_request = std::make_shared<wot::request>(request_str);
+        auto client_request = std::make_shared<sammy::request>(request_str);
         if(client_request->errors())
         {
             close(newsockfd);
@@ -137,7 +137,7 @@ int main(int argc, char *argv[])
                                 process_ids.push_back(std::this_thread::get_id());
                                 process_mutex.unlock();
 
-                                wot::server server{ domain, client_request, client_address, newsockfd };
+                                sammy::server server{ domain, client_request, client_address, newsockfd };
                                 server.handle();
 
                                 // Remove the thread id from the process list, since we are done handling the request

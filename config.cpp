@@ -1,6 +1,6 @@
 #include "config.hpp"
 
-namespace wot
+namespace sammy
 {
 domains::domains()
 {
@@ -11,14 +11,14 @@ domains::domains()
 
     while(std::getline(domain_lists, domain_prefix))
     {
-        std::shared_ptr<wot::domain> domain = std::make_shared<wot::domain>();
+        std::shared_ptr<sammy::domain> domain = std::make_shared<sammy::domain>();
 
         // Hostnames
         std::ifstream domain_hostnames("config/" + domain_prefix + ".hostnames");
         std::string hostname;
         while(std::getline(domain_hostnames, hostname))
         {
-            std::string trimmed_hostname = wot::utils::trim(hostname);
+            std::string trimmed_hostname = sammy::utils::trim(hostname);
 
             m_domains[trimmed_hostname] = domain;
 
@@ -30,7 +30,7 @@ domains::domains()
         std::ifstream domain_location("config/" + domain_prefix + ".location");
         std::string location;
         std::getline(domain_location, location);
-        domain->set_location(wot::utils::trim(location));
+        domain->set_location(sammy::utils::trim(location));
         domain_location.close();
 
         // Paths
@@ -40,7 +40,7 @@ domains::domains()
         {
             std::stringstream path_ss(path_line);
 
-            wot::path path;
+            sammy::path path;
             std::string path_type_text;
             std::string method_type_text;
 
@@ -52,33 +52,33 @@ domains::domains()
             // Get or Post Method
             if(method_type_text == "get")
             {
-                path.method = wot::method_type::get;
+                path.method = sammy::method_type::get;
             }
             else if(method_type_text == "post")
             {
-                path.method = wot::method_type::post;
+                path.method = sammy::method_type::post;
             }
             else
             {
-                path.method = wot::method_type::unknown;
+                path.method = sammy::method_type::unknown;
             }
 
             // Path Type
             if(path_type_text == "plain")
             {
-                path.type = wot::path_type::plain;
+                path.type = sammy::path_type::plain;
             }
             else if(path_type_text == "python")
             {
-                path.type = wot::path_type::python;
+                path.type = sammy::path_type::python;
             }
             else if (path_type_text == "binary")
             {
-                path.type = wot::path_type::binary;
+                path.type = sammy::path_type::binary;
             }
             else
             {
-                path.type = wot::path_type::unknown;
+                path.type = sammy::path_type::unknown;
             }
 
             domain->add_path(path);
@@ -90,7 +90,7 @@ domains::domains()
         std::string blacklist;
         while(std::getline(domain_blacklist, blacklist))
         {
-            std::string trimmed_blacklist = wot::utils::trim(blacklist);
+            std::string trimmed_blacklist = sammy::utils::trim(blacklist);
 
             domain->add_blacklist(trimmed_blacklist);
         }
@@ -100,7 +100,7 @@ domains::domains()
         std::ifstream domain_404("config/" + domain_prefix + ".404");
         std::string file_404;
         std::getline(domain_404, file_404);
-        domain->set_404(wot::utils::trim(file_404));
+        domain->set_404(sammy::utils::trim(file_404));
         domain_404.close();
     }
 

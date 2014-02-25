@@ -1,6 +1,6 @@
 #include "request.hpp"
 
-namespace wot
+namespace sammy
 {
 request::request(const std::string& r)
 {
@@ -9,7 +9,7 @@ request::request(const std::string& r)
     m_path = "";
     m_host = "";
 
-    m_request_lines = wot::utils::split_string(r, '\n');
+    m_request_lines = sammy::utils::split_string(r, '\n');
 
     if(m_request_lines.size() == 0)
     {
@@ -32,7 +32,7 @@ request::request(const std::string& r)
 
 void request::parse_header()
 {
-    std::vector<std::string> first_line = wot::utils::split_string(m_request_lines.at(0), ' ');
+    std::vector<std::string> first_line = sammy::utils::split_string(m_request_lines.at(0), ' ');
 
     if(first_line.size() < 3)
     {
@@ -53,24 +53,24 @@ void request::parse_header()
         m_method = "UNKNOWN";
     }
     
-    m_path = wot::utils::trim(first_line.at(1));
+    m_path = sammy::utils::trim(first_line.at(1));
 
     return;
 }
 
 void request::parse_host()
 {
-    int hostindex = wot::utils::line_starting_with("Host:", m_request_lines);
+    int hostindex = sammy::utils::line_starting_with("Host:", m_request_lines);
     if(hostindex == -1)
     {
         m_error = 1;
         return;
     }
 
-    auto hostline = wot::utils::split_string(m_request_lines.at(hostindex), ' ');
+    auto hostline = sammy::utils::split_string(m_request_lines.at(hostindex), ' ');
     if(hostline.size() >= 2)
     {   
-        m_host = wot::utils::trim(hostline.at(1));
+        m_host = sammy::utils::trim(hostline.at(1));
         return;
     }
 
@@ -81,7 +81,7 @@ void request::parse_host()
 
 void request::parse_cookies()
 {
-    int cookieindex = wot::utils::line_starting_with("Cookie:", m_request_lines);
+    int cookieindex = sammy::utils::line_starting_with("Cookie:", m_request_lines);
     if(cookieindex == -1)
     {
         return;
@@ -89,11 +89,11 @@ void request::parse_cookies()
 
     std::string cookieline = m_request_lines.at(cookieindex).substr(7);
 
-    auto cookies = wot::utils::split_string(cookieline, ';');
+    auto cookies = sammy::utils::split_string(cookieline, ';');
 
     for(auto& cookie : cookies)
     {
-        auto cookie_kv = wot::utils::split_string(cookie, '=');
+        auto cookie_kv = sammy::utils::split_string(cookie, '=');
         if(cookie_kv.size() != 2)
         {
             continue;
@@ -115,7 +115,7 @@ void request::parse_post_data()
     bool found_empty_line = false;
     for(const auto& line : m_request_lines)
     {
-        if(!found_empty_line && wot::utils::trim(line) == "")
+        if(!found_empty_line && sammy::utils::trim(line) == "")
         {
             found_empty_line = true;
         }
@@ -126,21 +126,21 @@ void request::parse_post_data()
         }
     }
 
-    m_post_data = wot::utils::trim(post_stream.str());
+    m_post_data = sammy::utils::trim(post_stream.str());
 }
 
 void request::parse_referer()
 {
-    int refererindex = wot::utils::line_starting_with("Referer:", m_request_lines);
+    int refererindex = sammy::utils::line_starting_with("Referer:", m_request_lines);
     if(refererindex == -1)
     {
         return;
     }
 
-    auto refererline = wot::utils::split_string(m_request_lines.at(refererindex), ' ');
+    auto refererline = sammy::utils::split_string(m_request_lines.at(refererindex), ' ');
     if(refererline.size() >= 2)
     {
-        m_referer = wot::utils::trim(refererline.at(1));
+        m_referer = sammy::utils::trim(refererline.at(1));
     }
 }
 

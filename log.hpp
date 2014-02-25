@@ -1,5 +1,5 @@
-#ifndef _WOT_LOG_
-#define _WOT_LOG_
+#ifndef _SAMMY_LOG_
+#define _SAMMY_LOG_
 
 #include <iostream>
 #include <string>
@@ -11,7 +11,7 @@
 
 #include "utils/utils.hpp"
 
-namespace wot
+namespace sammy
 {
 class log
 {
@@ -30,7 +30,7 @@ public:
     void error(const std::string& data);
 
 private:
-    void write(wot::log::type log_type, const std::string& data);
+    void write(sammy::log::type log_type, const std::string& data);
 
     std::mutex m_mutex;
 };

@@ -1,5 +1,5 @@
-#ifndef _WOT_RESPONSE_
-#define _WOT_RESPONSE_
+#ifndef _SAMMY_RESPONSE_
+#define _SAMMY_RESPONSE_
 
 #include <string>
 #include <sstream>
@@ -7,7 +7,7 @@
 
 #include "utils/utils.hpp"
 
-namespace wot
+namespace sammy
 {
     std::string response(const std::string& message, const std::string& type);
 }

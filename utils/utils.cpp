@@ -1,6 +1,6 @@
 #include "utils.hpp"
 
-namespace wot
+namespace sammy
 {
 namespace utils
 {

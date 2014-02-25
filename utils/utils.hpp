@@ -1,5 +1,5 @@
-#ifndef _WOT_UTILITIES_
-#define _WOT_UTILITIES_
+#ifndef _SAMMY_UTILITIES_
+#define _SAMMY_UTILITIES_
 
 #include <unistd.h>
 #include <vector>
@@ -13,7 +13,7 @@
 #include <time.h>
 #include <iostream>
 
-namespace wot
+namespace sammy
 {
 namespace utils
 {

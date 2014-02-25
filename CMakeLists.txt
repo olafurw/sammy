@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 2.8)
-project(wot)
+project(sammy)
 
 set(CMAKE_C_COMPILER	"clang")
 set(CMAKE_CXX_COMPILER	"clang++")

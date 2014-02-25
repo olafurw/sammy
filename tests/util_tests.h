@@ -14,7 +14,7 @@ public:
 
         for(unsigned int i = 0; i < string_list.size(); ++i)
         {
-            TS_ASSERT_EQUALS(wot::utils::trim(string_list.at(i)), match_list.at(i));
+            TS_ASSERT_EQUALS(sammy::utils::trim(string_list.at(i)), match_list.at(i));
         }
     }
 
@@ -22,7 +22,7 @@ public:
     {
         std::string split{ ":a:b:cde:f:g::h:" };
 
-        auto split_list = wot::utils::split_string(split, ':');
+        auto split_list = sammy::utils::split_string(split, ':');
 
         TS_ASSERT_EQUALS(8, split_list.size());
 

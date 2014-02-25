@@ -1,5 +1,5 @@
-#ifndef _WOT_CONFIG_
-#define _WOT_CONFIG_
+#ifndef _SAMMY_CONFIG_
+#define _SAMMY_CONFIG_
 
 #include <iostream>
 #include <fstream>
@@ -10,7 +10,7 @@
 #include "domain.hpp"
 #include "utils/utils.hpp"
 
-namespace wot
+namespace sammy
 {
 class domains
 {

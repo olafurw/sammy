@@ -1,5 +1,5 @@
-#ifndef _WOT_REQUEST_
-#define _WOT_REQUEST_
+#ifndef _SAMMY_REQUEST_
+#define _SAMMY_REQUEST_
 
 #include <string>
 #include <vector>
@@ -8,7 +8,7 @@
 
 #include "utils/utils.hpp"
 
-namespace wot
+namespace sammy
 {
 class request
 {

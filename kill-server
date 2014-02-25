@@ -1,0 +1,1 @@
+for pid in $(ps aux | grep "./server" | awk '{ print $2 }'); do sudo kill -9 $pid; done;
