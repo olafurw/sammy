@@ -18,10 +18,43 @@ request::request(const std::string& r)
     }
     
     parse_header();
-    parse_host();
-    parse_cookies();
+
+    for(unsigned int i = 1; i < m_request_lines.size(); ++i)
+    {
+        // Find the line type of the request, to route it to the correct parse function
+        std::string& current_line = m_request_lines.at(i);
+        auto colon_pos = current_line.find(": ");
+        if(colon_pos == std::string::npos)
+        {
+            continue;
+        }
+
+        std::string line_type = current_line.substr(0, colon_pos);
+        std::string line_data = current_line.substr(colon_pos + 2);
+
+        if(line_type == "Host")
+        {
+            parse_host(line_data);
+
+            continue;
+        }
+
+        if(line_type == "Cookie")
+        {
+            parse_cookies(line_data);
+
+            continue;
+        }
+
+        if(line_type == "Referer")
+        {
+            parse_referer(line_data);
+
+            continue;
+        }
+    }    
+
     parse_post_data();
-    parse_referer();
     
     if(m_error == 1 || m_method.size() == 0 || m_path.size() == 0 || m_method.size() == 0)
     {
@@ -39,13 +72,11 @@ void request::parse_header()
         return;
     }
 
-    if(first_line.at(0) == "GET")
+    std::string& method = first_line.at(0);
+
+    if(method == "GET" || method == "POST")
     {   
-        m_method = "GET";
-    }
-    else if(first_line.at(0) == "POST")
-    {
-        m_method = "POST";
+        m_method = method;
     }
     else
     {
@@ -58,48 +89,27 @@ void request::parse_header()
     return;
 }
 
-void request::parse_host()
+void request::parse_host(const std::string& host_data)
 {
-    int hostindex = sammy::utils::line_starting_with("Host:", m_request_lines);
-    if(hostindex == -1)
-    {
-        m_error = 1;
-        return;
-    }
-
-    auto hostline = sammy::utils::split_string(m_request_lines.at(hostindex), ' ');
-    if(hostline.size() >= 2)
-    {   
-        m_host = sammy::utils::trim(hostline.at(1));
-        return;
-    }
-
-    m_error = 1;
-    
-    return;
+    m_host = sammy::utils::trim(host_data);
 }
 
-void request::parse_cookies()
+void request::parse_cookies(const std::string& cookie_data)
 {
-    int cookieindex = sammy::utils::line_starting_with("Cookie:", m_request_lines);
-    if(cookieindex == -1)
-    {
-        return;
-    }
-
-    std::string cookieline = m_request_lines.at(cookieindex).substr(7);
-
-    auto cookies = sammy::utils::split_string(cookieline, ';');
+    auto cookies = sammy::utils::split_string(cookie_data, ';');
 
     for(auto& cookie : cookies)
     {
-        auto cookie_kv = sammy::utils::split_string(cookie, '=');
-        if(cookie_kv.size() != 2)
+        auto eq_pos = cookie.find("=");
+        std::string key = sammy::utils::trim(cookie.substr(0, eq_pos));
+        std::string value = sammy::utils::trim(cookie.substr(eq_pos + 1));
+
+        if(key == "" || value == "")
         {
             continue;
         }
 
-        m_cookies[cookie_kv.at(0)] = cookie_kv.at(1);
+        m_cookies[key] = value;
     }
 }
 
@@ -129,19 +139,9 @@ void request::parse_post_data()
     m_post_data = sammy::utils::trim(post_stream.str());
 }
 
-void request::parse_referer()
+void request::parse_referer(const std::string& referer_data)
 {
-    int refererindex = sammy::utils::line_starting_with("Referer:", m_request_lines);
-    if(refererindex == -1)
-    {
-        return;
-    }
-
-    auto refererline = sammy::utils::split_string(m_request_lines.at(refererindex), ' ');
-    if(refererline.size() >= 2)
-    {
-        m_referer = sammy::utils::trim(refererline.at(1));
-    }
+    m_referer = sammy::utils::trim(referer_data);
 }
 
 std::string request::get_host() const
@@ -167,18 +167,6 @@ std::string request::get_post_data() const
 std::string request::get_referer() const
 {
     return m_referer;
-}
-
-std::string request::get_cookies() const
-{
-    std::stringstream ss;
-
-    for(auto& kv : m_cookies)
-    {
-        ss << kv.first << "=" << kv.second;
-    }
-
-    return ss.str();
 }
 
 bool request::errors() const

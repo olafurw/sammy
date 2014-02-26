@@ -20,16 +20,15 @@ public:
     std::string get_method() const;
     std::string get_post_data() const;
     std::string get_referer() const;
-    std::string get_cookies() const;
 
     bool errors() const;
 
 private:
     void parse_header();
-    void parse_host();
-    void parse_cookies();
+    void parse_host(const std::string& host_data);
+    void parse_cookies(const std::string& cookie_data);
     void parse_post_data();
-    void parse_referer();
+    void parse_referer(const std::string& referer_data);
 
     std::string m_method;
     std::string m_path;
