@@ -3,15 +3,12 @@
 namespace sammy
 {
 
-server::server(std::shared_ptr<sammy::domain> domain,
-           std::shared_ptr<sammy::request> request, 
-           std::string client_address, 
-           int sockfd)
+server::server(std::shared_ptr<sammy::thread::task> task)
 {
-    m_domain = domain;
-    m_request = request;
-    m_sockfd = sockfd;
-    m_client_address = client_address;
+    m_domain = task->domain;
+    m_request = task->client_request;
+    m_sockfd = task->newsockfd;
+    m_client_address = task->client_address;
     
     m_log = std::unique_ptr<sammy::log>(new sammy::log());
 }

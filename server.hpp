@@ -21,15 +21,14 @@
 #include "request.hpp"
 #include "config.hpp"
 
+#include "thread/task.hpp"
+
 namespace sammy
 {
 class server
 {
 public:
-    server(std::shared_ptr<sammy::domain> domain,
-           std::shared_ptr<sammy::request> request, 
-           std::string client_address, 
-           int sockfd);
+    server(std::shared_ptr<sammy::thread::task> task);
 
     void handle();
     ~server();

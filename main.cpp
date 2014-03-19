@@ -9,6 +9,7 @@
 #include <mutex>
 
 #include "utils/utils.hpp"
+#include "thread/pool.hpp"
 #include "request.hpp"
 #include "server.hpp"
 
@@ -54,9 +55,6 @@ int main(int argc, char *argv[])
 
     // Listen on the socket, with possible 20 connections that can wait in the backlog
     listen(sockfd, 20);
-    
-    std::mutex process_mutex;
-    std::vector<std::thread::id> process_ids;
 
     std::cout << "Starting server." << std::endl;
     
@@ -67,6 +65,8 @@ int main(int argc, char *argv[])
         std::cout << "Error loading config!" << std::endl;
         exit(1);
     }
+
+    sammy::thread::pool thread_pool;
 
     std::cout << "Server started!" << std::endl;
    
@@ -130,24 +130,8 @@ int main(int argc, char *argv[])
             continue;
         }
 
-        // Spawn the handling thread and detach it, let it finish on its own
-        std::thread thread { [ newsockfd, &process_mutex, &process_ids, client_address, domain, client_request ]() {
-                                // Store the thread id in the process list
-                                process_mutex.lock();
-                                process_ids.push_back(std::this_thread::get_id());
-                                process_mutex.unlock();
-
-                                sammy::server server{ domain, client_request, client_address, newsockfd };
-                                server.handle();
-
-                                // Remove the thread id from the process list, since we are done handling the request
-                                process_mutex.lock();
-                                process_ids.erase(std::remove(process_ids.begin(), process_ids.end(), std::this_thread::get_id()), process_ids.end());
-                                process_mutex.unlock();
-                              } 
-                           };
-
-        thread.detach();
+        // Add the task, to be processed by the thread pool when possible
+        thread_pool.add_task(std::make_shared<sammy::thread::task>(newsockfd, domain, client_request, client_address));
     }
  
     return 0;
