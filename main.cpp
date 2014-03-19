@@ -18,7 +18,7 @@ void read_request(int sockfd, size_t& read_result, std::string& buffer_str)
 
     // Create and zero out the buffer
     char buffer[read_size];
-    bzero(buffer, read_size);
+    memset(buffer, 0, read_size);
 
     char p;
     size_t peek_size = recv(sockfd, &p, 1, MSG_PEEK);
@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
 
     // Set the current server address information
     sockaddr_in serv_addr;
-    bzero((char*)&serv_addr, sizeof(serv_addr));
+    memset((char*)&serv_addr, 0, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = INADDR_ANY;
     serv_addr.sin_port = htons(portno);
