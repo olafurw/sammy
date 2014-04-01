@@ -17,6 +17,8 @@ worker::worker(sammy::thread::pool* tp)
 
 void worker::work(sammy::thread::pool* tp)
 {
+    auto thread_id = std::this_thread::get_id();
+
     while( true )
     {
         // We have stuff to do (if we are quick enough)
@@ -26,6 +28,9 @@ void worker::work(sammy::thread::pool* tp)
             auto task = tp->get_task();
             if(task == nullptr)
             {
+                // Chill
+                std::this_thread::sleep_for( std::chrono::milliseconds( 25 ) );
+
                 continue;
             }
 

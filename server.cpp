@@ -173,6 +173,7 @@ void server::handle()
 
 
         write(m_sockfd, response.c_str(), response.size());
+        close(m_sockfd);
     }
     catch(...)
     {
