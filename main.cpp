@@ -37,20 +37,29 @@ int main(int argc, char *argv[])
 {
     auto log = std::unique_ptr<sammy::log>(new sammy::log());
 
-    // Create the socket and set the socket options
-    int portno{ 80 };
-    int sockfd{ socket(AF_INET, SOCK_STREAM, 0) };
-    int optval{ 1 };
-    setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
+    addrinfo* res{ nullptr };
 
-    // Set the current server address information
-    sockaddr_in serv_addr;
-    memset((char*)&serv_addr, 0, sizeof(serv_addr));
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_addr.s_addr = INADDR_ANY;
-    serv_addr.sin_port = htons(portno);
+    addrinfo hints;
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_flags = AI_PASSIVE;
 
-    auto bind_result = bind(sockfd, (sockaddr*)&serv_addr, sizeof(serv_addr));
+    auto info_result = getaddrinfo(NULL, "80", &hints, &res);
+    if(info_result < 0)
+    {
+        std::cout << "Error in address info, error #" << info_result << "" << std::endl;
+    }
+
+    auto sockfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+
+    if(sockfd == -1)
+    {
+        std::cout << "Error creating socket, error #" << errno << "" << std::endl;
+        exit(1);
+    }
+
+    auto bind_result = bind(sockfd, res->ai_addr, res->ai_addrlen);
 
     // Bind the socket with the address information given above
     if(bind_result == -1)
