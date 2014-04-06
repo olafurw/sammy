@@ -5,6 +5,8 @@ namespace sammy
 request::request(const std::string& r)
 {
     m_error = 0;
+    m_error_text = "";
+
     m_method = "";
     m_path = "";
     m_host = "";
@@ -14,6 +16,8 @@ request::request(const std::string& r)
     if(m_request_lines.size() == 0)
     {
         m_error = 1;
+        m_error_text = "Request data empty.";
+
         return;
     }
     
@@ -56,9 +60,11 @@ request::request(const std::string& r)
 
     parse_post_data();
     
-    if(m_error == 1 || m_method.size() == 0 || m_path.size() == 0 || m_method.size() == 0)
+    if(m_method.size() == 0 || m_path.size() == 0 || m_host.size() == 0)
     {
         m_error = 1;
+        m_error_text = "Method, path or host empty.";
+
         return;
     }
 }
@@ -77,11 +83,6 @@ void request::parse_header()
     if(method == "GET" || method == "POST")
     {   
         m_method = method;
-    }
-    else
-    {
-        m_error = 1;
-        m_method = "UNKNOWN";
     }
     
     m_path = sammy::utils::trim(first_line.at(1));
@@ -172,6 +173,11 @@ std::string request::get_referer() const
 bool request::errors() const
 {
     return m_error != 0;
+}
+
+std::string request::error_text() const
+{
+    return m_error_text;
 }
 
 }

@@ -22,6 +22,7 @@ public:
     std::string get_referer() const;
 
     bool errors() const;
+    std::string error_text() const;
 
 private:
     void parse_header();
@@ -36,7 +37,9 @@ private:
     std::string m_post_data;
     std::string m_referer;
     std::map<std::string, std::string> m_cookies;
+
     int m_error;
+    std::string m_error_text;
 
     std::vector<std::string> m_request_lines;
 };

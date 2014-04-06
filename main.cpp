@@ -50,11 +50,23 @@ int main(int argc, char *argv[])
     serv_addr.sin_addr.s_addr = INADDR_ANY;
     serv_addr.sin_port = htons(portno);
 
+    auto bind_result = bind(sockfd, (sockaddr*)&serv_addr, sizeof(serv_addr));
+
     // Bind the socket with the address information given above
-    bind(sockfd, (sockaddr*)&serv_addr, sizeof(serv_addr));
+    if(bind_result == -1)
+    {
+        std::cout << "Error binding address, error #" << errno << "" << std::endl;
+        exit(1);
+    }
+
+    auto listen_result = listen(sockfd, 20);
 
     // Listen on the socket, with possible 20 connections that can wait in the backlog
-    listen(sockfd, 20);
+    if(listen_result == -1)
+    {
+        std::cout << "Error listening to address, error #" << errno << "" << std::endl;
+        exit(1);
+    }
 
     std::cout << "Starting server." << std::endl;
     
@@ -78,6 +90,12 @@ int main(int argc, char *argv[])
         // Accept the the request
         int newsockfd = accept(sockfd, (sockaddr*)&cli_addr, &clilen);
 
+        if(!newsockfd)
+        {
+            log->error("Error in client socket connection. Skipping!");
+            continue;
+        }
+
         // Log who is requesting the data
         char inet_str[INET_ADDRSTRLEN];
         inet_ntop(cli_addr.sin_family, &(cli_addr.sin_addr), inet_str, INET_ADDRSTRLEN);
@@ -91,6 +109,7 @@ int main(int argc, char *argv[])
         // If the read result isn't ok
         if(read_result == -1)
         {
+            log->error("Error in read result.");
             close(newsockfd);
             continue;
         }
@@ -98,6 +117,7 @@ int main(int argc, char *argv[])
         // The request string is empty
         if(request_str.empty())
         {
+            log->error("Request string empty.");
             close(newsockfd);
             continue;
         }
@@ -106,6 +126,7 @@ int main(int argc, char *argv[])
         auto client_request = std::make_shared<sammy::request>(request_str);
         if(client_request->errors())
         {
+            log->error("Request parse error: " + client_request->error_text());
             close(newsockfd);
             continue;
         }
