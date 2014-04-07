@@ -21,14 +21,6 @@ void read_request(int sockfd, size_t& read_result, std::string& buffer_str)
     char buffer[read_size];
     memset(buffer, 0, read_size);
 
-    char p;
-    size_t peek_size = recv(sockfd, &p, 1, MSG_PEEK);
-    if(peek_size < 1)
-    {
-        read_result = peek_size;
-        return;
-    }
-
     read_result = read(sockfd, buffer, read_size - 1);
     buffer_str = buffer;
 }
@@ -118,7 +110,7 @@ int main(int argc, char *argv[])
         // If the read result isn't ok
         if(read_result == -1)
         {
-            log->error("Error in read result.");
+            log->error("Error in read result, error #" + std::to_string(errno));
             close(newsockfd);
             continue;
         }
