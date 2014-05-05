@@ -9,7 +9,15 @@
 
 namespace sammy
 {
-    std::string response(const std::string& message, const std::string& type);
+struct response_data
+{
+    int response_code;
+    time_t modification_time;
+    std::string message;
+    std::string type;
+};
+
+    std::string response(const response_data& data);
 }
 
 #endif

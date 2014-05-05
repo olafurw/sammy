@@ -20,12 +20,18 @@ std::string server::static_file_response()
     // Get the file path
     std::string file_path = m_domain->get_location() + m_request->get_path();
 
-    // Open the file and put it into a string
-    std::string file_data = sammy::utils::file_to_string(file_path.c_str());
+    sammy::response_data data;
 
-    if(file_data.size() > 0)
+    // Open the file and put it into a string
+    data.message = sammy::utils::file_to_string(file_path.c_str());
+    data.modification_time = sammy::utils::file_modified(file_path.c_str());
+    data.type = sammy::utils::mime_type(m_request->get_path());
+    data.response_code = 404;
+
+    if(data.message.size() > 0)
     {
-        response = sammy::response(file_data, sammy::utils::mime_type(m_request->get_path()));
+        data.response_code = 200;
+        response = sammy::response(data);
     }
 
     return response;
@@ -37,12 +43,18 @@ std::string server::plain_file_response(const sammy::path& path)
 
     std::string file_path = m_domain->get_location()  + "/" +  path.file;
 
-    // Open the file and put it into a string
-    std::string file_data = sammy::utils::file_to_string(file_path.c_str());
+    sammy::response_data data;
 
-    if(file_data.size() > 0)
+    // Open the file and put it into a string
+    data.message = sammy::utils::file_to_string(file_path.c_str());
+    data.modification_time = sammy::utils::file_modified(file_path.c_str());
+    data.type = sammy::utils::mime_type(path.file);
+    data.response_code = 404;
+
+    if(data.message.size() > 0)
     {
-        response = sammy::response(file_data, sammy::utils::mime_type(path.file));
+        data.response_code = 200;
+        response = sammy::response(data);
     }
 
     return response;
@@ -59,12 +71,18 @@ std::string server::python_response(const sammy::path& path, std::string post_da
 
     std::string file_path = "python " + m_domain->get_location() + "/" +  path.file + " " + post_data;
 
-    // Open the file and put it into a string
-    std::string file_data = sammy::utils::program_to_string(file_path);
+    sammy::response_data data;
 
-    if(file_data.size() > 0)
+    // Open the file and put it into a string
+    data.message = sammy::utils::program_to_string(file_path);
+    data.modification_time = sammy::utils::current_time();
+    data.type = "text/html";
+    data.response_code = 404;
+
+    if(data.message.size() > 0)
     {
-        response = sammy::response(file_data, "text/html");
+        data.response_code = 200;
+        response = sammy::response(data);
     }
 
     return response;
@@ -83,12 +101,18 @@ std::string server::binary_response(const sammy::path& path, std::string post_da
 
     std::string file_path = m_domain->get_location() + "/" +  path.file + " " + sanitized_get_path + " " + post_data;
 
-    // Open the file and put it into a string
-    std::string file_data = sammy::utils::program_to_string(file_path);
+    sammy::response_data data;
 
-    if(file_data.size() > 0)
+    // Open the file and put it into a string
+    data.message = sammy::utils::program_to_string(file_path);
+    data.modification_time = sammy::utils::current_time();
+    data.type = "text/html";
+    data.response_code = 404;
+
+    if(data.message.size() > 0)
     {
-        response = sammy::response(file_data, "text/html");
+        data.response_code = 200;
+        response = sammy::response(data);
     }
 
     return response;
@@ -98,7 +122,13 @@ std::string server::file_not_found_response()
 {
     std::string file_path = m_domain->get_location() + "/" + m_domain->get_404();
 
-    return sammy::response(sammy::utils::file_to_string(file_path.c_str()), "text/html");
+    sammy::response_data data;
+    data.message = sammy::utils::file_to_string(file_path.c_str());
+    data.modification_time = sammy::utils::file_modified(file_path.c_str());
+    data.type = "text/html";
+    data.response_code = 404;
+
+    return sammy::response(data);
 }
 
 void server::handle()

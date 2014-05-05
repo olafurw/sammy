@@ -4,5 +4,5 @@
 /about         get     plain   about.html
 /projects      get     plain   projects.html
 /blog/*        get     binary  blog
-/admin/blog    get     plain   blog-post.html
-/admin/blog    post    python  blog-post.py
+/admin/blog    get     plain   admin-blog.html
+/admin/blog    post    python  admin-blog.py

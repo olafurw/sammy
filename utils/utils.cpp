@@ -54,6 +54,19 @@ namespace utils
     
         return segments;
     }
+    
+    time_t file_modified(const char* filename)
+    {
+        struct stat sb;
+
+        int result = stat(filename, &sb);
+        if(result == -1)
+        {
+            return -1;
+        }
+
+        return sb.st_mtime;
+    }
 
     std::string file_to_string(const char* filename)
     {
@@ -115,6 +128,16 @@ namespace utils
         }
 
         return ss.str();
+    }
+
+    std::string format_unixtime(time_t t, const char* format)
+    {
+        char buffer[80];
+        tm* timeinfo = localtime(&t);
+
+        strftime(buffer, 80, format, timeinfo);
+
+        return std::string(buffer);
     }
     
     std::unique_ptr<std::string> current_time(const char* format)

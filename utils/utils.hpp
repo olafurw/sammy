@@ -1,7 +1,6 @@
 #ifndef _SAMMY_UTILITIES_
 #define _SAMMY_UTILITIES_
 
-#include <unistd.h>
 #include <vector>
 #include <fstream>
 #include <sstream>
@@ -12,6 +11,9 @@
 #include <stdio.h>
 #include <time.h>
 #include <iostream>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 namespace sammy
 {
@@ -29,6 +31,9 @@ namespace utils
     std::string trim(const std::string& s);
 
     std::vector<std::string> split_string(const std::string& str, char token);
+    
+    // File modification time in unixtime
+    time_t file_modified(const char* filename);
 
     // File to string
     // http://insanecoding.blogspot.com/2011/11/how-to-read-in-file-in-c.html
@@ -39,6 +44,7 @@ namespace utils
     std::string sanitize_string(const std::string dirty);
     std::string program_to_string(const std::string& run, const std::string& argument = "");
 
+    std::string format_unixtime(time_t t, const char* format);
     std::unique_ptr<std::string> current_time(const char* format);
     time_t current_time();
 
