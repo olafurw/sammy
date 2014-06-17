@@ -43,5 +43,106 @@ Referer: http://web-sniffer.net/
         TS_ASSERT_EQUALS("www.google.com", r.get_host());
         TS_ASSERT_EQUALS("http://web-sniffer.net/", r.get_referer());
     }
+    
+    void test_if_modified_since()
+    {
+        std::string req = R"(GET / HTTP/1.1
+Host: www.google.com
+If-Modified-Since: Sat, 29 Oct 1994 19:43:31 GMT
+)";
+
+        sammy::request r(req);
+
+        TS_ASSERT_EQUALS(false, r.errors());
+
+        TS_ASSERT_EQUALS("GET", r.get_method());
+        TS_ASSERT_EQUALS("www.google.com", r.get_host());
+        TS_ASSERT_EQUALS(783459811, r.get_if_modified_since());
+    }
+    
+    void test_if_modified_since_error_day()
+    {
+        std::string req = R"(GET / HTTP/1.1
+Host: www.google.com
+If-Modified-Since: Sat, 32 Oct 1994 19:43:31 GMT
+)";
+
+        sammy::request r(req);
+
+        TS_ASSERT_EQUALS(true, r.errors());
+    }
+    
+    void test_if_modified_since_error_month()
+    {
+        std::string req = R"(GET / HTTP/1.1
+Host: www.google.com
+If-Modified-Since: Sat, 01 Xxx 1994 19:43:31 GMT
+)";
+
+        sammy::request r(req);
+
+        TS_ASSERT_EQUALS(true, r.errors());
+    }
+    
+    void test_if_modified_since_error_year()
+    {
+        std::string req = R"(GET / HTTP/1.1
+Host: www.google.com
+If-Modified-Since: Sat, 01 Oct 19X9 19:43:31 GMT
+)";
+
+        sammy::request r(req);
+
+        TS_ASSERT_EQUALS(true, r.errors());
+    }
+    
+    void test_if_modified_since_error_time()
+    {
+        std::string req = R"(GET / HTTP/1.1
+Host: www.google.com
+If-Modified-Since: Sat, 01 Oct 1999 19:43 GMT
+)";
+
+        sammy::request r(req);
+
+        TS_ASSERT_EQUALS(true, r.errors());
+    }
+    
+    void test_if_modified_since_error_gmt()
+    {
+        std::string req = R"(GET / HTTP/1.1
+Host: www.google.com
+If-Modified-Since: Sat, 01 Oct 1999 19:43:31 XXX
+)";
+
+        sammy::request r(req);
+
+        TS_ASSERT_EQUALS(true, r.errors());
+    }
+    
+    void test_if_modified_since_error_length()
+    {
+        std::string req = R"(GET / HTTP/1.1
+Host: www.google.com
+If-Modified-Since: Sat, 01 Oct 1999 19:43:31
+)";
+
+        sammy::request r(req);
+
+        TS_ASSERT_EQUALS(true, r.errors());
+    }
+    
+    void test_unknown_error()
+    {
+        std::string req = R"(GET / HTTP/1.1
+Host: www.google.com
+If-Modified-Since: Mon May  5 12:56:24 2014
+)";
+
+        sammy::request r(req);
+
+        TS_ASSERT_EQUALS(false, r.errors());
+        TS_ASSERT_EQUALS(1399294584, r.get_if_modified_since());
+    }
 };
 

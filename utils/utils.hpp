@@ -30,7 +30,7 @@ namespace utils
     std::string rtrim(const std::string& s);
     std::string trim(const std::string& s);
 
-    std::vector<std::string> split_string(const std::string& str, char token);
+    std::vector<std::string> split_string(const std::string& str, const char token, const bool skip_empty = false);
     
     // File modification time in unixtime
     time_t file_modified(const char* filename);

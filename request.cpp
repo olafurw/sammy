@@ -10,6 +10,7 @@ request::request(const std::string& r)
     m_method = "";
     m_path = "";
     m_host = "";
+    m_if_modified_since = 0;
 
     m_request_lines = sammy::utils::split_string(r, '\n');
 
@@ -53,6 +54,13 @@ request::request(const std::string& r)
         if(line_type == "Referer")
         {
             parse_referer(line_data);
+
+            continue;
+        }
+
+        if(line_type == "If-Modified-Since")
+        {
+            parse_if_modified_since(line_data);
 
             continue;
         }
@@ -145,6 +153,324 @@ void request::parse_referer(const std::string& referer_data)
     m_referer = sammy::utils::trim(referer_data);
 }
 
+void request::parse_date_rfc_1123(std::vector<std::string>& parts)
+{
+    auto wkday = parts[0];
+    int day = std::stoi(parts[1], 0, 10);
+    if(day < 0 || day > 31)
+    {
+        m_error = 1;
+        m_error_text = "If-Modified-Since day field not correct.";
+
+        return;
+    }
+    
+    int month = -1;
+    auto month_text = parts[2];
+    if(month_text == "Jan")
+    {
+        month = 0;
+    }
+    else if(month_text == "Feb")
+    {
+        month = 1;
+    }
+    else if(month_text == "Mar")
+    {
+        month = 2;
+    }
+    else if(month_text == "Apr")
+    {
+        month = 3;
+    }
+    else if(month_text == "May")
+    {
+        month = 4;
+    }
+    else if(month_text == "Jun")
+    {
+        month = 5;
+    }
+    else if(month_text == "Jul")
+    {
+        month = 6;
+    }
+    else if(month_text == "Aug")
+    {
+        month = 7;
+    }
+    else if(month_text == "Sep")
+    {
+        month = 8;
+    }
+    else if(month_text == "Oct")
+    {
+        month = 9;
+    }
+    else if(month_text == "Nov")
+    {
+        month = 10;
+    }
+    else if(month_text == "Dec")
+    {
+        month = 11;
+    }
+
+    if(month == -1)
+    {
+        m_error = 1;
+        m_error_text = "If-Modified-Since month field not correct.";
+
+        return;
+    }
+
+    int year = std::stoi(parts[3], 0, 10);
+    std::string year_test = std::to_string(year);
+    if(parts[3] != year_test)
+    {
+        m_error = 1;
+        m_error_text = "If-Modified-Since year parsing not successful.";
+
+        return;
+    }
+    
+    if(year < 0 || (year - 1900) < 0)
+    {
+        m_error = 1;
+        m_error_text = "If-Modified-Since year field not large enough.";
+
+        return;
+    }
+
+    auto time_text = parts[4];
+    int hours = 0;
+    int minutes = 0;
+    int seconds = 0;
+
+    int scan_result = sscanf(time_text.c_str(), "%2d:%2d:%2d", &hours, &minutes, &seconds);
+    if(scan_result != 3)
+    {
+        m_error = 1;
+        m_error_text = "If-Modified-Since time field not correct.";
+    }
+
+    if(hours < 0 || hours > 23)
+    {
+        m_error = 1;
+        m_error_text = "If-Modified-Since hours field not correct.";
+    }
+
+    if(minutes < 0 || minutes > 59)
+    {
+        m_error = 1;
+        m_error_text = "If-Modified-Since minutes field not correct.";
+    }
+    
+    if(seconds < 0 || seconds > 60)
+    {
+        m_error = 1;
+        m_error_text = "If-Modified-Since seconds field not correct.";
+    }
+
+    auto gmt = parts[5];
+    if(gmt != "GMT")
+    {
+        m_error = 1;
+        m_error_text = "If-Modified-Since GMT missing.";
+    }
+
+    tm* time_object = new tm;
+    time_object->tm_sec = seconds;
+    time_object->tm_min = minutes;
+    time_object->tm_hour = hours;
+    time_object->tm_mday = day;
+    time_object->tm_mon = month;
+    time_object->tm_year = year - 1900;
+
+    time_t result = mktime(time_object);
+    if(result == -1)
+    {
+        m_error = 1;
+        m_error_text = "If-Modified-Since unable to generate date.";
+
+        return;
+    }
+
+    // Success
+    m_if_modified_since = result;   
+}
+
+// Not implemented yet
+void request::parse_date_rfc_850(std::vector<std::string>& parts)
+{
+    m_if_modified_since = 0;
+}
+
+// Not implemented yet
+void request::parse_date_asctime(std::vector<std::string>& parts)
+{
+    auto wkday = parts[0];
+    
+    int month = -1;
+    auto month_text = parts[1];
+    if(month_text == "Jan")
+    {
+        month = 0;
+    }
+    else if(month_text == "Feb")
+    {
+        month = 1;
+    }
+    else if(month_text == "Mar")
+    {
+        month = 2;
+    }
+    else if(month_text == "Apr")
+    {
+        month = 3;
+    }
+    else if(month_text == "May")
+    {
+        month = 4;
+    }
+    else if(month_text == "Jun")
+    {
+        month = 5;
+    }
+    else if(month_text == "Jul")
+    {
+        month = 6;
+    }
+    else if(month_text == "Aug")
+    {
+        month = 7;
+    }
+    else if(month_text == "Sep")
+    {
+        month = 8;
+    }
+    else if(month_text == "Oct")
+    {
+        month = 9;
+    }
+    else if(month_text == "Nov")
+    {
+        month = 10;
+    }
+    else if(month_text == "Dec")
+    {
+        month = 11;
+    }
+
+    if(month == -1)
+    {
+        m_error = 1;
+        m_error_text = "If-Modified-Since month field not correct.";
+
+        return;
+    }
+    
+    int day = std::stoi(parts[2], 0, 10);
+    if(day < 0 || day > 31)
+    {
+        m_error = 1;
+        m_error_text = "If-Modified-Since day field not correct.";
+
+        return;
+    }
+    
+    auto time_text = parts[3];
+    int hours = 0;
+    int minutes = 0;
+    int seconds = 0;
+
+    int scan_result = sscanf(time_text.c_str(), "%2d:%2d:%2d", &hours, &minutes, &seconds);
+    if(scan_result != 3)
+    {
+        m_error = 1;
+        m_error_text = "If-Modified-Since time field not correct.";
+    }
+
+    if(hours < 0 || hours > 23)
+    {
+        m_error = 1;
+        m_error_text = "If-Modified-Since hours field not correct.";
+    }
+
+    if(minutes < 0 || minutes > 59)
+    {
+        m_error = 1;
+        m_error_text = "If-Modified-Since minutes field not correct.";
+    }
+    
+    if(seconds < 0 || seconds > 60)
+    {
+        m_error = 1;
+        m_error_text = "If-Modified-Since seconds field not correct.";
+    }
+
+    int year = std::stoi(parts[4], 0, 10);
+    std::string year_test = std::to_string(year);
+    if(parts[4] != year_test)
+    {
+        m_error = 1;
+        m_error_text = "If-Modified-Since year parsing not successful.";
+
+        return;
+    }
+    
+    if(year < 0 || (year - 1900) < 0)
+    {
+        m_error = 1;
+        m_error_text = "If-Modified-Since year field not large enough.";
+
+        return;
+    }
+
+    tm* time_object = new tm;
+    time_object->tm_sec = seconds;
+    time_object->tm_min = minutes;
+    time_object->tm_hour = hours;
+    time_object->tm_mday = day;
+    time_object->tm_mon = month;
+    time_object->tm_year = year - 1900;
+    
+
+    time_t result = mktime(time_object);
+    if(result == -1)
+    {
+        m_error = 1;
+        m_error_text = "If-Modified-Since unable to generate date.";
+
+        return;
+    }
+
+    // Success
+    m_if_modified_since = result;
+}
+
+void request::parse_if_modified_since(const std::string& modified_date)
+{
+    auto parts = sammy::utils::split_string(modified_date, ' ', true);
+    
+    // RFC 1123 or RFC 850
+    if(parts.size() == 6 && parts[5] == "GMT")
+    {
+        // RFC 1123
+        if(parts[0].length() == 4)
+        {
+            parse_date_rfc_1123(parts);
+            return;
+        }
+        
+        parse_date_rfc_850(parts);
+        return;
+    }
+    
+    parse_date_asctime(parts);
+    return;
+}
+
 std::string request::get_host() const
 {   
     return m_host;
@@ -168,6 +494,11 @@ std::string request::get_post_data() const
 std::string request::get_referer() const
 {
     return m_referer;
+}
+
+time_t request::get_if_modified_since() const
+{
+    return m_if_modified_since;
 }
 
 bool request::errors() const

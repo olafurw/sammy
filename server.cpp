@@ -22,9 +22,13 @@ std::string server::static_file_response()
 
     sammy::response_data data;
 
-    // Open the file and put it into a string
-    data.message = sammy::utils::file_to_string(file_path.c_str());
     data.modification_time = sammy::utils::file_modified(file_path.c_str());
+    if(data.modification_time <= m_request->get_if_modified_since())
+    {
+        return sammy::response_304();
+    }
+
+    data.message = sammy::utils::file_to_string(file_path.c_str());
     data.type = sammy::utils::mime_type(m_request->get_path());
     data.response_code = 404;
 
@@ -200,7 +204,6 @@ void server::handle()
         {
             m_log->info(m_client_address + " : " + m_request->get_host() + " : " + m_request->get_method() + " : " + m_request->get_path() + " : 200 : " + std::to_string(response.size()) + " : " + m_request->get_referer());
         }
-
 
         write(m_sockfd, response.c_str(), response.size());
         close(m_sockfd);

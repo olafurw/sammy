@@ -20,6 +20,7 @@ public:
     std::string get_method() const;
     std::string get_post_data() const;
     std::string get_referer() const;
+    time_t get_if_modified_since() const;
 
     bool errors() const;
     std::string error_text() const;
@@ -30,12 +31,19 @@ private:
     void parse_cookies(const std::string& cookie_data);
     void parse_post_data();
     void parse_referer(const std::string& referer_data);
+    
+    void parse_date_rfc_1123(std::vector<std::string>& parts);
+    void parse_date_rfc_850(std::vector<std::string>& parts);
+    void parse_date_asctime(std::vector<std::string>& parts);
+    
+    void parse_if_modified_since(const std::string& modified_date);
 
     std::string m_method;
     std::string m_path;
     std::string m_host;
     std::string m_post_data;
     std::string m_referer;
+    time_t m_if_modified_since;
     std::map<std::string, std::string> m_cookies;
 
     int m_error;

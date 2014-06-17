@@ -17,6 +17,7 @@ struct response_data
     std::string type;
 };
 
+    std::string response_304();
     std::string response(const response_data& data);
 }
 

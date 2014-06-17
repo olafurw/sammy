@@ -41,7 +41,7 @@ namespace utils
         return ltrim(rtrim(tmp_str));
     }
 
-    std::vector<std::string> split_string(const std::string& str, char token)
+    std::vector<std::string> split_string(const std::string& str, const char token, const bool skip_empty)
     {
         std::vector<std::string> segments;
         std::stringstream ss(str);
@@ -49,6 +49,11 @@ namespace utils
     
         while(std::getline(ss, segment, token))
         {
+            if(skip_empty && trim(segment) == "")
+            {
+                continue;
+            }
+            
             segments.emplace_back(std::move(segment));
         }
     
