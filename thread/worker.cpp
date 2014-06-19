@@ -17,7 +17,7 @@ worker::worker(sammy::thread::pool* tp)
 
 void worker::work(sammy::thread::pool* tp)
 {
-    auto thread_id = std::this_thread::get_id();
+    const auto thread_id = std::this_thread::get_id();
 
     while( true )
     {

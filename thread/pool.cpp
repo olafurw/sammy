@@ -43,7 +43,7 @@ std::shared_ptr<task> pool::get_task()
     return task;
 }
 
-bool pool::has_task()
+bool pool::has_task() const
 {
     std::lock_guard<std::mutex> lock(m_mutex);
 

@@ -22,12 +22,12 @@ public:
 
     std::shared_ptr<task> get_task();
 
-    bool has_task();
+    bool has_task() const;
 
 private:
     std::vector<worker> m_workers;
     std::queue<std::shared_ptr<task>> m_task_queue;
-    std::mutex m_mutex;
+    mutable std::mutex m_mutex;
 };
 
 }
