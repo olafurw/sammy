@@ -105,5 +105,17 @@ public:
         d.set_404("some_other_404_file.html");
         TS_ASSERT_EQUALS("some_other_404_file.html", d.get_404());
     }
+    
+    void test_add_path()
+    {
+        sammy::domain d;
+        sammy::path p("a", sammy::path_type::plain, sammy::method_type::get, "file.html");
+        
+        d.add_path(p);
+        
+        sammy::path gp = d.get_path(sammy::method_type::get, "a");
+        
+        TS_ASSERT_EQUALS(gp, p);
+    }
 };
 

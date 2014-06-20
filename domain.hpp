@@ -47,6 +47,14 @@ struct path
         file(f)
     {
     };
+    
+    bool operator==(const path& b)
+    {
+        return this->type == b.type
+            && this->method == b.method
+            && this->request == b.request
+            && this->file == b.file;
+    }
 };
 
 class domain
