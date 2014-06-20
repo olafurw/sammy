@@ -32,12 +32,20 @@ struct path
     sammy::method_type method;
     std::string file;
 
-    path()
+    path():
+        request(""),
+        type(sammy::path_type::unknown),
+        method(sammy::method_type::unknown),
+        file("")
     {
-        request = "";
-        type = sammy::path_type::unknown;
-        method = sammy::method_type::unknown;
-        file = "";
+    };
+    
+    path(const std::string& r, sammy::path_type t, sammy::method_type m, const std::string& f):
+        request(r),
+        type(t),
+        method(m),
+        file(f)
+    {
     };
 };
 

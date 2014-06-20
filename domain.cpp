@@ -2,18 +2,42 @@
 
 namespace sammy 
 {
-domain::domain()
+domain::domain(): 
+    m_location(""),
+    m_404("")
 {
 }
 
 void domain::add_hostname(const std::string& hostname)
 {
-    m_hostnames.push_back(hostname);
+    std::string trimmed_hostname = sammy::utils::trim(hostname);
+    if(trimmed_hostname == "")
+    {
+        return;
+    }
+    
+    if(is_hostname(trimmed_hostname))
+    {
+        return;
+    }
+    
+    m_hostnames.emplace_back(trimmed_hostname);
 }
 
 void domain::add_blacklist(const std::string& blacklist)
 {
-    m_blacklist.push_back(blacklist);
+    std::string trimmed_blacklist = sammy::utils::trim(blacklist);
+    if(trimmed_blacklist == "")
+    {
+        return;
+    }
+    
+    if(is_blacklisted(trimmed_blacklist))
+    {
+        return;
+    }
+    
+    m_blacklist.emplace_back(trimmed_blacklist);
 }
 
 void domain::set_location(const std::string& location)
