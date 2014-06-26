@@ -7,6 +7,7 @@ server::server(std::shared_ptr<sammy::thread::task> task)
 {
     m_domain = task->domain;
     m_request = task->client_request;
+    m_cache = task->cache;
     m_sockfd = task->newsockfd;
     m_client_address = task->client_address;
     
@@ -28,7 +29,17 @@ std::string server::static_file_response()
         return sammy::response_304();
     }
 
-    data.message = sammy::utils::file_to_string(file_path.c_str());
+    // Fetch from cache first, otherwise update the cache
+    if(!m_cache->is_expired(m_request->get_host(), m_request->get_path()))
+    {
+        data.message = m_cache->get_data(m_request->get_host(), m_request->get_path());
+    }
+    else
+    {
+        data.message = sammy::utils::file_to_string(file_path.c_str());
+        m_cache->set(m_request->get_host(), m_request->get_path(), data.message, utils::current_time() + 3600);
+    }
+
     data.type = sammy::utils::mime_type(m_request->get_path());
     data.response_code = 404;
 
@@ -49,8 +60,17 @@ std::string server::plain_file_response(const sammy::path& path)
 
     sammy::response_data data;
 
-    // Open the file and put it into a string
-    data.message = sammy::utils::file_to_string(file_path.c_str());
+    // Fetch from cache first, otherwise update the cache
+    if(!m_cache->is_expired(m_request->get_host(), m_request->get_path()))
+    {
+        data.message = m_cache->get_data(m_request->get_host(), m_request->get_path());
+    }
+    else
+    {
+        data.message = sammy::utils::file_to_string(file_path.c_str());
+        m_cache->set(m_request->get_host(), m_request->get_path(), data.message, utils::current_time() + 3600);
+    }
+
     data.modification_time = sammy::utils::file_modified(file_path.c_str());
     data.type = sammy::utils::mime_type(path.file);
     data.response_code = 404;

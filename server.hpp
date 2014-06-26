@@ -50,6 +50,7 @@ private:
 
     std::shared_ptr<sammy::domain> m_domain;
     std::shared_ptr<sammy::request> m_request;
+    std::shared_ptr<sammy::cache_storage> m_cache;
     std::unique_ptr<sammy::log> m_log;
     std::string m_client_address;
 };

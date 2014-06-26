@@ -10,6 +10,7 @@
 
 #include "utils/utils.hpp"
 #include "thread/pool.hpp"
+#include "cache_storage.hpp"
 #include "request.hpp"
 #include "server.hpp"
 
@@ -122,6 +123,9 @@ int main(int argc, char *argv[])
         std::cout << "Error loading config!" << std::endl;
         exit(1);
     }
+
+    // Init cache
+    auto cache = std::make_shared<sammy::cache_storage>();
 
     const int MAX_EVENTS = 20;
     epoll_event* events = new epoll_event[MAX_EVENTS];
@@ -238,7 +242,7 @@ int main(int argc, char *argv[])
                 }
 
                 // Add the task, to be processed by the thread pool when possible
-                thread_pool.add_task(std::make_shared<sammy::thread::task>(newsockfd, domain, client_request, client_address));
+                thread_pool.add_task(std::make_shared<sammy::thread::task>(newsockfd, domain, client_request, cache, client_address));
                 
                 continue;
             }
