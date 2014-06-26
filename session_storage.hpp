@@ -13,12 +13,12 @@ public:
     session();
     ~session();
 
-    std::string get_value(const std::string& key);
+    std::string get_value(const std::string& key) const;
     void set_value(const std::string& key, const std::string& value);
 
 private:
     std::map<std::string, std::string> m_session;
-    std::mutex m_mutex;
+    mutable std::mutex m_mutex;
 };
 
 class session_storage

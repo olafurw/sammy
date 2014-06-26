@@ -11,7 +11,7 @@ session::~session()
 {
 }
 
-std::string session::get_value(const std::string& key)
+std::string session::get_value(const std::string& key) const
 {
     std::lock_guard<std::mutex> lock(m_mutex);
 
@@ -20,7 +20,7 @@ std::string session::get_value(const std::string& key)
         return "";
     }
 
-    return m_session[key];
+    return m_session.at(key);
 }
 
 void session::set_value(const std::string& key, const std::string& value)
