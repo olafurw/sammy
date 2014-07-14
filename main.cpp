@@ -58,7 +58,7 @@ addrinfo* create_addrinfo()
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE;
 
-    auto info_result = getaddrinfo(NULL, PORT_NUMBER, &hints, &res);
+    const auto info_result = getaddrinfo(NULL, PORT_NUMBER, &hints, &res);
     if(info_result < 0)
     {
         std::cout << "Error in address info, error #" << info_result << "" << std::endl;
