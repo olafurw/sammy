@@ -14,19 +14,22 @@
 #include "request.hpp"
 #include "server.hpp"
 
+static const unsigned int READ_SIZE = 8192;
+static const char* PORT_NUMBER = "80";
+static const unsigned int CONNECTION_QUEUE_SIZE = 30;
+static const unsigned int MAX_EPOLL_EVENTS = 30;
+
 void read_request(int sockfd, size_t& read_result, std::string& buffer_str)
 {
-    const unsigned int read_size = 8192;
-
     // Create and zero out the buffer
-    char buffer[read_size];
-    memset(buffer, 0, read_size);
+    char buffer[READ_SIZE];
+    memset(buffer, 0, READ_SIZE);
 
-    read_result = read(sockfd, buffer, read_size - 1);
+    read_result = read(sockfd, buffer, READ_SIZE - 1);
     buffer_str = buffer;
 }
 
-int set_non_blocking(int fd)
+int fd_nonblock(int fd)
 {
     int flags = fcntl(fd, F_GETFL, 0);
     if(flags == -1)
@@ -36,7 +39,7 @@ int set_non_blocking(int fd)
 
     flags |= O_NONBLOCK;
 
-    int result = fcntl(fd, F_SETFL, flags);
+    const int result = fcntl(fd, F_SETFL, flags);
     if(result == -1)
     {
         return -1;
@@ -45,10 +48,8 @@ int set_non_blocking(int fd)
     return 0;
 }
 
-int main(int argc, char *argv[])
+addrinfo* create_addrinfo()
 {
-    auto log = std::unique_ptr<sammy::log>(new sammy::log());
-
     addrinfo* res{ nullptr };
 
     addrinfo hints;
@@ -57,62 +58,110 @@ int main(int argc, char *argv[])
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE;
 
-    auto info_result = getaddrinfo(NULL, "80", &hints, &res);
+    auto info_result = getaddrinfo(NULL, PORT_NUMBER, &hints, &res);
     if(info_result < 0)
     {
         std::cout << "Error in address info, error #" << info_result << "" << std::endl;
+        exit(1);
     }
+    
+    return res;
+}
 
-    // Create the socket
-    auto sockfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+int create_socket(addrinfo* res)
+{
+    int sockfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
     if(sockfd == -1)
     {
         std::cout << "Error creating socket, error #" << errno << "" << std::endl;
         exit(1);
     }
+    
+    return sockfd;
+}
 
-    // Bind the socket with the address information given above
-    auto bind_result = bind(sockfd, res->ai_addr, res->ai_addrlen);
+void set_socket_reusable(int socket)
+{
+    const int yes = 1;
+    const auto sockopt_result = setsockopt(socket, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
+    if(sockopt_result == -1)
+    {
+        std::cout << "Error setting socket options, error #" << errno << std::endl;
+        exit(1);
+    }
+}
+
+void set_socket_bind(int socket, addrinfo* res)
+{
+    const auto bind_result = bind(socket, res->ai_addr, res->ai_addrlen);
     if(bind_result == -1)
     {
         std::cout << "Error binding address, error #" << errno << "" << std::endl;
         exit(1);
     }
+}
 
-    // Set the socket as non blocking
-    auto non_blocking_result = set_non_blocking(sockfd);
+void set_socket_non_blocking(int socket)
+{
+    const auto non_blocking_result = fd_nonblock(socket);
     if(non_blocking_result == -1)
     {
         std::cout << "Error setting socket to non blocking. error #" << errno << std::endl;
         exit(1);
     }
+}
 
-    // Listen on the socket, with possible 20 connections that can wait in the backlog
-    auto listen_result = listen(sockfd, 20);
+void set_socket_listen(int socket)
+{
+    const auto listen_result = listen(socket, CONNECTION_QUEUE_SIZE);
     if(listen_result == -1)
     {
         std::cout << "Error listening to address, error #" << errno << "" << std::endl;
         exit(1);
-    }
+    }   
+}
 
-    // Creating the epoll file descriptor
-    auto efd = epoll_create1(0);
+int create_epoll()
+{
+    int efd = epoll_create1(0);
     if(efd == -1)
     {
-        std::cout << "Error creating epoll file descriptor." << std::endl;
+        std::cout << "Error creating epoll file descriptor, error #" << errno << "" << std::endl;
         exit(1);
     }
+    
+    return efd;
+}
 
-    // Create the epoll control interface
+void set_epoll_interface(int efd, int socket)
+{
     epoll_event event;
-    event.data.fd = sockfd;
+    event.data.fd = socket;
     event.events = EPOLLIN | EPOLLET;
-    auto ctl_result = epoll_ctl(efd, EPOLL_CTL_ADD, sockfd, &event);
+    
+    const auto ctl_result = epoll_ctl(efd, EPOLL_CTL_ADD, socket, &event);
     if(ctl_result == -1)
     {
-        std::cout << "Error creating epoll control interface." << std::endl;
+        std::cout << "Error creating epoll control interface, error #" << errno << "" << std::endl;
         exit(1);
     }
+}
+
+int main(int argc, char *argv[])
+{
+    auto log = std::unique_ptr<sammy::log>(new sammy::log());
+
+    addrinfo* res = create_addrinfo();
+    int sockfd = create_socket(res);
+    
+    set_socket_reusable(sockfd);
+    set_socket_bind(sockfd, res);
+    set_socket_non_blocking(sockfd);
+    set_socket_listen(sockfd);
+    
+    int efd = create_epoll();
+
+    set_epoll_interface(efd, sockfd);
 
     std::cout << "Starting server." << std::endl;
     
@@ -127,8 +176,8 @@ int main(int argc, char *argv[])
     // Init cache
     auto cache = std::make_shared<sammy::cache_storage>();
 
-    const int MAX_EVENTS = 20;
-    epoll_event* events = new epoll_event[MAX_EVENTS];
+    // Init events
+    epoll_event* events = new epoll_event[MAX_EPOLL_EVENTS];
 
     sammy::thread::pool thread_pool;
 
@@ -136,19 +185,21 @@ int main(int argc, char *argv[])
 
     while( true )
     {
-        auto event_count = epoll_wait(efd, events, MAX_EVENTS, -1);
+        const int event_count = epoll_wait(efd, events, MAX_EPOLL_EVENTS, -1);
 
         for(int i = 0; i < event_count; ++i)
         {
-            if( (events[i].events & EPOLLERR) ||
-                (events[i].events & EPOLLHUP) ||
-                (!(events[i].events & EPOLLIN)))
+            const epoll_event& event = events[i];
+            
+            if( (event.events & EPOLLERR) ||
+                (event.events & EPOLLHUP) ||
+                (!(event.events & EPOLLIN)))
             {
                 std::cout << "Error in the file descriptor." << std::endl;
-                close(events[i].data.fd);
+                close(event.data.fd);
                 continue;
             }
-            else if(sockfd == events[i].data.fd)
+            else if(sockfd == event.data.fd)
             {
                 while( true )
                 {
@@ -162,22 +213,8 @@ int main(int argc, char *argv[])
                         break;
                     }
 
-                    auto non_blocking_result = set_non_blocking(sockfd);
-                    if(non_blocking_result == -1)
-                    {
-                        std::cout << "Error setting socket to non blocking. error #" << errno << std::endl;
-                        exit(1);
-                    }
-
-                    epoll_event newevent;
-                    newevent.data.fd = newsockfd;
-                    newevent.events = EPOLLIN | EPOLLET;
-                    auto ctl_result = epoll_ctl(efd, EPOLL_CTL_ADD, newsockfd, &newevent);
-                    if(ctl_result == -1)
-                    {
-                        std::cout << "Error creating epoll control interface." << std::endl;
-                        exit(1);
-                    }
+                    set_socket_non_blocking(sockfd);
+                    set_epoll_interface(efd, newsockfd);
                 }
                 
                 continue;
@@ -190,7 +227,7 @@ int main(int argc, char *argv[])
 
                 std::string client_address("127.0.0.1");
 
-                auto newsockfd = events[i].data.fd;
+                auto newsockfd = event.data.fd;
                 
                 std::string request_str = "";
                 size_t read_result = 0;
@@ -251,6 +288,5 @@ int main(int argc, char *argv[])
 
     delete [] events;
 
- 
     return 0;
 }
