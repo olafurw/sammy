@@ -180,6 +180,8 @@ int main(int argc, char *argv[])
     epoll_event* events = new epoll_event[MAX_EPOLL_EVENTS];
 
     sammy::thread::pool thread_pool;
+    
+    std::map<int, std::string> client_ip_address;
 
     std::cout << "Server started!" << std::endl;
 
@@ -215,19 +217,19 @@ int main(int argc, char *argv[])
 
                     set_socket_non_blocking(sockfd);
                     set_epoll_interface(efd, newsockfd);
+                    
+                    char out_c[INET_ADDRSTRLEN];
+                    inet_ntop(AF_INET, &(cli_addr.sin_addr), out_c, INET_ADDRSTRLEN);
+                    client_ip_address[newsockfd] = out_c;
                 }
                 
                 continue;
             }
             else
             {
-                // Log who is requesting the data
-                //char inet_str[INET_ADDRSTRLEN];
-                //inet_ntop(cli_addr.sin_family, &(cli_addr.sin_addr), inet_str, INET_ADDRSTRLEN);
-
-                std::string client_address("127.0.0.1");
-
-                auto newsockfd = event.data.fd;
+                int newsockfd = event.data.fd;
+                
+                std::string client_address = client_ip_address[newsockfd];
                 
                 std::string request_str = "";
                 size_t read_result = 0;
