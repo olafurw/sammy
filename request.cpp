@@ -287,7 +287,7 @@ void request::parse_date_rfc_1123(std::vector<std::string>& parts)
     time_object->tm_mon = month;
     time_object->tm_year = year - 1900;
 
-    time_t result = mktime(time_object);
+    time_t result = timegm(time_object);
     if(result == -1)
     {
         m_error = 1;
@@ -435,8 +435,7 @@ void request::parse_date_asctime(std::vector<std::string>& parts)
     time_object->tm_mon = month;
     time_object->tm_year = year - 1900;
     
-
-    time_t result = mktime(time_object);
+    time_t result = timegm(time_object);
     if(result == -1)
     {
         m_error = 1;
