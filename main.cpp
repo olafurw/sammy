@@ -166,8 +166,8 @@ int main(int argc, char *argv[])
     std::cout << "Starting server." << std::endl;
     
     // Init the domain config loading
-    auto domains = std::make_shared<sammy::domains>();
-    if(domains->errors())
+    auto domain_storage = std::make_shared<sammy::domain_storage>();
+    if(domain_storage->errors())
     {
         std::cout << "Error loading config!" << std::endl;
         exit(1);
@@ -262,7 +262,7 @@ int main(int argc, char *argv[])
                 
                 // Load domain configuration
                 std::string response = "";
-                auto domain = domains->get_domain(client_request->get_host());
+                auto domain = domain_storage->get_domain(client_request->get_host());
 
                 // If this server does not serve the domain being asked for, we close the connection.
                 if(!domain)

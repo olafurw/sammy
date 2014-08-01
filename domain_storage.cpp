@@ -1,8 +1,8 @@
-#include "config.hpp"
+#include "domain_storage.hpp"
 
 namespace sammy
 {
-domains::domains()
+domain_storage::domain_storage()
 {
     m_error = 0;
 
@@ -107,17 +107,17 @@ domains::domains()
     domain_lists.close();
 }
 
-bool domains::is_domain(const std::string& domain)
+bool domain_storage::is_domain(const std::string& domain)
 {
     return m_domains.find(domain) != m_domains.end();
 }
 
-std::shared_ptr<domain> domains::get_domain(const std::string& domain)
+std::shared_ptr<domain> domain_storage::get_domain(const std::string& domain)
 {
     return is_domain(domain) ? m_domains[domain] : nullptr;
 }
 
-bool domains::errors()
+bool domain_storage::errors()
 {
     return m_error != 0;
 }

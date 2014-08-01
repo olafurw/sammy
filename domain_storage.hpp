@@ -1,5 +1,5 @@
-#ifndef _SAMMY_CONFIG_
-#define _SAMMY_CONFIG_
+#ifndef _SAMMY_DOMAIN_STORAGE_
+#define _SAMMY_DOMAIN_STORAGE_
 
 #include <iostream>
 #include <fstream>
@@ -12,10 +12,10 @@
 
 namespace sammy
 {
-class domains
+class domain_storage
 {
 public:
-    domains();
+	domain_storage();
     bool errors();
 
     bool is_domain(const std::string& domain);
