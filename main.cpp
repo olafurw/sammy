@@ -218,9 +218,9 @@ int main(int argc, char *argv[])
                     set_socket_non_blocking(sockfd);
                     set_epoll_interface(efd, newsockfd);
                     
-                    char out_c[INET_ADDRSTRLEN];
-                    inet_ntop(AF_INET, &(cli_addr.sin_addr), out_c, INET_ADDRSTRLEN);
-                    client_ip_address[newsockfd] = out_c;
+                    std::string out;
+                    inet_ntop(AF_INET, &(cli_addr.sin_addr), &out[0], INET_ADDRSTRLEN);
+                    client_ip_address[newsockfd] = out;
                 }
                 
                 continue;

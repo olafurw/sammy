@@ -48,6 +48,35 @@ struct path
     {
     };
     
+    path(const std::string& r, const std::string& t, const std::string& m, const std::string& f):
+        request(r),
+        file(f)
+    {
+        method = sammy::method_type::unknown;
+        if(m == "get")
+        {
+            method = sammy::method_type::get;
+        }
+        else if(m == "post")
+        {
+            method = sammy::method_type::post;
+        }
+
+        type = sammy::path_type::unknown;
+        if(t == "plain")
+        {
+            type = sammy::path_type::plain;
+        }
+        else if(t == "python")
+        {
+            type = sammy::path_type::python;
+        }
+        else if (t == "binary")
+        {
+            type = sammy::path_type::binary;
+        }
+    }
+
     bool operator==(const path& b)
     {
         return this->type == b.type
