@@ -32,9 +32,9 @@ private:
     void parse_post_data();
     void parse_referer(const std::string& referer_data);
     
-    void parse_date_rfc_1123(std::vector<std::string>& parts);
-    void parse_date_rfc_850(std::vector<std::string>& parts);
-    void parse_date_asctime(std::vector<std::string>& parts);
+    void parse_date_rfc_1123(const std::vector<std::string>& parts);
+    void parse_date_rfc_850(const std::vector<std::string>& parts);
+    void parse_date_asctime(const std::vector<std::string>& parts);
     
     void parse_if_modified_since(const std::string& modified_date);
 

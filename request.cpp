@@ -153,7 +153,7 @@ void request::parse_referer(const std::string& referer_data)
     m_referer = sammy::utils::trim(referer_data);
 }
 
-void request::parse_date_rfc_1123(std::vector<std::string>& parts)
+void request::parse_date_rfc_1123(const std::vector<std::string>& parts)
 {
     auto wkday = parts[0];
     int day = std::stoi(parts[1], 0, 10);
@@ -301,13 +301,13 @@ void request::parse_date_rfc_1123(std::vector<std::string>& parts)
 }
 
 // Not implemented yet
-void request::parse_date_rfc_850(std::vector<std::string>& parts)
+void request::parse_date_rfc_850(const std::vector<std::string>& parts)
 {
     m_if_modified_since = 0;
 }
 
 // Not implemented yet
-void request::parse_date_asctime(std::vector<std::string>& parts)
+void request::parse_date_asctime(const std::vector<std::string>& parts)
 {
     auto wkday = parts[0];
     
