@@ -64,7 +64,7 @@ namespace utils
     {
         struct stat sb;
 
-        int result = stat(filename, &sb);
+        const int result = stat(filename, &sb);
         if(result == -1)
         {
             return -1;

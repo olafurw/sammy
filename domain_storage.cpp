@@ -6,105 +6,93 @@ domain_storage::domain_storage()
 {
     m_error = 0;
 
-    std::ifstream domain_lists("config/domains.wl");
-    std::string domain_prefix;
-
-    while(std::getline(domain_lists, domain_prefix))
+    std::string domain_list_file = "config/domains.wl";
+    std::vector<std::string> domains = sammy::utils::file_to_array(domain_list_file.c_str());
+    for(auto& domain_prefix : domains)
     {
         std::shared_ptr<sammy::domain> domain = std::make_shared<sammy::domain>();
 
         // Hostnames
-        std::ifstream domain_hostnames("config/" + domain_prefix + ".hostnames");
-        std::string hostname;
-        while(std::getline(domain_hostnames, hostname))
+        std::string hostnames_file = "config/" + domain_prefix + ".hostnames";
+        std::vector<std::string> hostnames = sammy::utils::file_to_array(hostnames_file.c_str());
+        for(auto& hostname : hostnames)
         {
-            std::string trimmed_hostname = sammy::utils::trim(hostname);
-
-            m_domains[trimmed_hostname] = domain;
-
-            domain->add_hostname(trimmed_hostname);
+            domain->add_hostname(hostname);
         }
-        domain_hostnames.close();
 
         // Location
-        std::ifstream domain_location("config/" + domain_prefix + ".location");
-        std::string location;
-        std::getline(domain_location, location);
-        domain->set_location(sammy::utils::trim(location));
-        domain_location.close();
+        std::string location_file = "config/" + domain_prefix + ".location";
+        std::string location = sammy::utils::file_to_string(location_file.c_str());
+        domain->set_location(location);
 
         // Paths
-        std::ifstream domain_paths("config/" + domain_prefix + ".paths");
-        std::string path_line;
-        while(std::getline(domain_paths, path_line))
+        std::string path_file = "config/" + domain_prefix + ".paths";
+        std::vector<std::string> paths = sammy::utils::file_to_array(path_file.c_str());
+        for(auto& path : paths)
         {
-            std::stringstream path_ss(path_line);
+            std::vector<std::string> path_parts = sammy::utils::split_string(path, ' ', true);
+            if(path_parts.size() != 4)
+            {
+                m_error = 1;
+                return;
+            }
+            sammy::path domain_path;
+            domain_path.request = path_parts.at(0);
+            domain_path.file = path_parts.at(3);
 
-            sammy::path path;
-            std::string path_type_text;
-            std::string method_type_text;
-
-            path_ss >> path.request;
-            path_ss >> method_type_text;
-            path_ss >> path_type_text;
-            path_ss >> path.file;
+            std::string method_type = path_parts.at(1);
+            std::string path_type = path_parts.at(2);
 
             // Get or Post Method
-            if(method_type_text == "get")
+            if(method_type == "get")
             {
-                path.method = sammy::method_type::get;
+                domain_path.method = sammy::method_type::get;
             }
-            else if(method_type_text == "post")
+            else if(method_type == "post")
             {
-                path.method = sammy::method_type::post;
+                domain_path.method = sammy::method_type::post;
             }
             else
             {
-                path.method = sammy::method_type::unknown;
+                domain_path.method = sammy::method_type::unknown;
             }
 
             // Path Type
-            if(path_type_text == "plain")
+            if(path_type == "plain")
             {
-                path.type = sammy::path_type::plain;
+                domain_path.type = sammy::path_type::plain;
             }
-            else if(path_type_text == "python")
+            else if(path_type == "python")
             {
-                path.type = sammy::path_type::python;
+                domain_path.type = sammy::path_type::python;
             }
-            else if (path_type_text == "binary")
+            else if (path_type == "binary")
             {
-                path.type = sammy::path_type::binary;
+                domain_path.type = sammy::path_type::binary;
             }
             else
             {
-                path.type = sammy::path_type::unknown;
+                domain_path.type = sammy::path_type::unknown;
             }
 
-            domain->add_path(path);
+            domain->add_path(domain_path);
         }
-        domain_paths.close();
         
         // Blacklist
-        std::ifstream domain_blacklist("config/" + domain_prefix + ".blacklist");
-        std::string blacklist;
-        while(std::getline(domain_blacklist, blacklist))
+        std::string blacklist_file = "config/" + domain_prefix + ".blacklist";
+        std::vector<std::string> blacklisted_users = sammy::utils::file_to_array(blacklist_file.c_str());
+        for(auto& user : blacklisted_users)
         {
-            std::string trimmed_blacklist = sammy::utils::trim(blacklist);
-
-            domain->add_blacklist(trimmed_blacklist);
+            domain->add_blacklist(user);
         }
-        domain_blacklist.close();
 
         // 404
-        std::ifstream domain_404("config/" + domain_prefix + ".404");
-        std::string file_404;
-        std::getline(domain_404, file_404);
-        domain->set_404(sammy::utils::trim(file_404));
-        domain_404.close();
-    }
+        std::string file_404 = "config/" + domain_prefix + ".404";
+        std::string data_404 = sammy::utils::file_to_string(file_404.c_str());
+        sammy::utils::trim(data_404);
 
-    domain_lists.close();
+        domain->set_404(data_404);
+    }
 }
 
 bool domain_storage::is_domain(const std::string& domain)
