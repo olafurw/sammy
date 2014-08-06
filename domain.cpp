@@ -42,12 +42,12 @@ void domain::add_blacklist(const std::string& blacklist)
 
 void domain::set_location(const std::string& location)
 {
-    m_location = location;
+    m_location = sammy::utils::trim(location);
 }
 
 void domain::set_404(const std::string& file_404)
 {
-    m_404 = file_404;
+    m_404 = sammy::utils::trim(file_404);
 }
 
 void domain::add_path(const sammy::path& path)
@@ -99,6 +99,11 @@ sammy::path domain::find_wildcard_path(sammy::method_type method, const std::str
     }
 
     return result;
+}
+
+std::vector<std::string> domain::get_hostnames()
+{
+    return m_hostnames;
 }
 
 }

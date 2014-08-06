@@ -8,7 +8,7 @@ domain_storage::domain_storage()
 
     std::string domain_list_file = "config/domains.wl";
     std::vector<std::string> domains = sammy::utils::file_to_array(domain_list_file.c_str());
-    for(auto& domain_prefix : domains)
+    for(const auto& domain_prefix : domains)
     {
         std::shared_ptr<sammy::domain> domain = std::make_shared<sammy::domain>();
 
@@ -17,12 +17,23 @@ domain_storage::domain_storage()
         process_paths(domain_prefix, domain);
         process_blacklist(domain_prefix, domain);
         process_404(domain_prefix, domain);
+
+        if(m_error != 0)
+        {
+            break;
+        }
+
+        for(const auto& hostname : domain->get_hostnames())
+        {
+            m_domains[hostname] = domain;
+        } 
     }
 }
 
 void domain_storage::process_hostnames(const std::string& domain_prefix, std::shared_ptr<domain> domain)
 {
     std::string hostnames_file = "config/" + domain_prefix + ".hostnames";
+
     std::vector<std::string> hostnames = sammy::utils::file_to_array(hostnames_file.c_str());
     for(auto& hostname : hostnames)
     {
@@ -33,6 +44,7 @@ void domain_storage::process_hostnames(const std::string& domain_prefix, std::sh
 void domain_storage::process_location(const std::string& domain_prefix, std::shared_ptr<domain> domain)
 {
     std::string location_file = "config/" + domain_prefix + ".location";
+
     std::string location = sammy::utils::file_to_string(location_file.c_str());
     domain->set_location(location);
 }
@@ -40,6 +52,7 @@ void domain_storage::process_location(const std::string& domain_prefix, std::sha
 void domain_storage::process_paths(const std::string& domain_prefix, std::shared_ptr<domain> domain)
 {
     std::string path_file = "config/" + domain_prefix + ".paths";
+
     std::vector<std::string> paths = sammy::utils::file_to_array(path_file.c_str());
     for(auto& path : paths)
     {
@@ -49,7 +62,8 @@ void domain_storage::process_paths(const std::string& domain_prefix, std::shared
             m_error = 1;
             return;
         }
-        sammy::path domain_path(path_parts.at(0), path_parts.at(2), path_parts.at(1), path_parts.at(3));
+
+        sammy::path domain_path(path_parts[0], path_parts[2], path_parts[1], path_parts[3]);
 
         domain->add_path(domain_path);
     }
@@ -58,6 +72,7 @@ void domain_storage::process_paths(const std::string& domain_prefix, std::shared
 void domain_storage::process_blacklist(const std::string& domain_prefix, std::shared_ptr<domain> domain)
 {
     std::string blacklist_file = "config/" + domain_prefix + ".blacklist";
+
     std::vector<std::string> blacklisted_users = sammy::utils::file_to_array(blacklist_file.c_str());
     for(auto& user : blacklisted_users)
     {
@@ -68,6 +83,7 @@ void domain_storage::process_blacklist(const std::string& domain_prefix, std::sh
 void domain_storage::process_404(const std::string& domain_prefix, std::shared_ptr<domain> domain)
 {
     std::string file_404 = "config/" + domain_prefix + ".404";
+
     std::string data_404 = sammy::utils::file_to_string(file_404.c_str());
     sammy::utils::trim(data_404);
 

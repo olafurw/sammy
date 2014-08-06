@@ -103,6 +103,7 @@ public:
     std::string get_404();
     sammy::path get_path(sammy::method_type method, const std::string& path);
     sammy::path find_wildcard_path(sammy::method_type method, const std::string& path);
+    std::vector<std::string> get_hostnames();
 
 private:
     std::vector<std::string> m_hostnames;
