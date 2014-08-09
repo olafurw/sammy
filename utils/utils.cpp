@@ -4,6 +4,20 @@ namespace sammy
 {
 namespace utils
 {
+    std::mt19937& rand_gen()
+    {
+        static const auto seed = std::chrono::system_clock::now().time_since_epoch().count();
+        static std::mt19937 gen(seed);
+        return gen;
+    }
+
+    int random(const int from, const int to)
+    {
+        std::uniform_int_distribution<> dis(from, to);
+
+        return dis(rand_gen());
+    }
+
     std::string& ltrim(std::string& s)
     {
         s.erase(s.begin(), std::find_if(s.begin(), s.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));

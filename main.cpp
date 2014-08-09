@@ -163,13 +163,13 @@ int main(int argc, char *argv[])
 
     set_epoll_interface(efd, sockfd);
 
-    std::cout << "Starting server." << std::endl;
+    log->info("Starting server.");
     
     // Init the domain config loading
     auto domain_storage = std::make_shared<sammy::domain_storage>();
     if(domain_storage->errors())
     {
-        std::cout << "Error loading config!" << std::endl;
+        log->error("Error loading config.");
         exit(1);
     }
 
@@ -183,7 +183,7 @@ int main(int argc, char *argv[])
     
     std::map<int, std::string> client_ip_address;
 
-    std::cout << "Server started!" << std::endl;
+    log->info("Server started");
 
     while( true )
     {

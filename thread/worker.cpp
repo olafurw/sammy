@@ -10,21 +10,29 @@ namespace sammy
 namespace thread
 {
 
-worker::worker(sammy::thread::pool* tp)
+worker::worker(unsigned int index)
 {
-    m_thread = std::thread(&worker::work, this, tp);
+    m_index = index;
 }
 
-void worker::work(sammy::thread::pool* tp)
+void worker::run()
 {
-    while( true )
-    {
-        // We have stuff to do (if we are quick enough)
-        if(tp->has_task())
+    m_thread = std::thread([&](){
+        while( true )
         {
-            // Between the has_task and get_task, someone got it, go again
-            auto task = tp->get_task();
-            if(task == nullptr)
+            std::shared_ptr<task> next_task = nullptr;
+
+            {
+                std::lock_guard<std::mutex> lock(m_mutex);
+
+                if(!m_tasks.empty())
+                {
+                    next_task = m_tasks.front();
+                    m_tasks.pop();
+                }
+            }
+
+            if(next_task == nullptr)
             {
                 // Chill
                 std::this_thread::sleep_for( std::chrono::milliseconds( 25 ) );
@@ -32,14 +40,17 @@ void worker::work(sammy::thread::pool* tp)
                 continue;
             }
 
-            // Serve the content
-            sammy::server server{ task };
+            sammy::server server{ next_task };
             server.handle();
         }
+    });
+}
 
-        // Chill
-        std::this_thread::sleep_for( std::chrono::milliseconds( 25 ) );
-    }
+void worker::add_task(std::shared_ptr<task> task)
+{
+    std::lock_guard<std::mutex> lock(m_mutex);
+
+    m_tasks.push(task);
 }
 
 }

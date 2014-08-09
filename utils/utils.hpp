@@ -7,6 +7,8 @@
 #include <string.h>
 #include <algorithm>
 #include <memory>
+#include <random>
+#include <chrono>
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
@@ -19,6 +21,8 @@ namespace sammy
 {
 namespace utils
 {
+    int random(const int from, const int to);
+
     // Trimming
     // http://stackoverflow.com/a/217605/22459
     // Evan Teran
