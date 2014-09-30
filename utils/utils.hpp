@@ -17,10 +17,14 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "sha/sha256.hpp"
+
 namespace sammy
 {
 namespace utils
 {
+	std::string sha256(const std::string& data);
+
     int random(const int from, const int to);
 
     // Trimming

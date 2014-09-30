@@ -4,6 +4,26 @@ namespace sammy
 {
 namespace utils
 {
+	std::string sha256(const std::string& data)
+	{
+		static char const hex[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+		unsigned char result[8];
+		sha256_state md;
+
+		sha_init(md);
+		sha_process(md, data.c_str(), data.size());
+		sha_done(md, result);
+
+		std::string sha_string;
+		for(int i = 0; i < 32; ++i)
+		{
+			sha_string.append(&hex[(result[i]  & 0xF0) >> 4], 1);
+			sha_string.append(&hex[result[i] & 0xF], 1);
+		}
+
+		return sha_string;
+	}
+
     std::mt19937& rand_gen()
     {
         static const auto seed = std::chrono::system_clock::now().time_since_epoch().count();

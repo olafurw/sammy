@@ -167,5 +167,7 @@ void sha_done(sha256_state& md, void* out)
 
     // Copy output
     for(int i = 0; i < 8; i++)
+	{
         store32(md.state[i], static_cast<unsigned char*>(out)+(4*i));
+	}
 }

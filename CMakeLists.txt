@@ -8,6 +8,7 @@ set(CMAKE_CXX_FLAGS 	"-g -std=c++11")
 add_executable(server 
 	main.cpp 
     utils/utils.cpp 
+    utils/sha/sha256.cpp 
     log.cpp 
     request.cpp 
     response.cpp 
