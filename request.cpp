@@ -11,6 +11,7 @@ request::request(const std::string& r)
     m_path = "";
     m_host = "";
     m_if_modified_since = 0;
+    m_port = 0;
 
     m_request_lines = sammy::utils::split_string(r, '\n');
 
@@ -100,7 +101,20 @@ void request::parse_header()
 
 void request::parse_host(const std::string& host_data)
 {
-    m_host = sammy::utils::trim(host_data);
+    auto host = sammy::utils::split_string(host_data, ':');
+
+    if(host.size() == 0)
+    {
+        m_error = 1;
+        m_error_text = "Host information empty.";
+    }
+
+    m_host = sammy::utils::trim(host[0]);
+
+    if(host.size() > 1)
+    {
+        m_port = std::stoul(host[1]);
+    }
 }
 
 void request::parse_cookies(const std::string& cookie_data)
