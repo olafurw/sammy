@@ -127,6 +127,13 @@ namespace utils
         return split_string(file_to_string(filename), token);
     }
 
+    void write_to_file(const char* filename, const std::string& content)
+    {
+        std::ofstream out(filename, std::ios::out | std::ios::app);
+        out << content;
+        out.close();
+    }
+
     std::string sanitize_string(const std::string dirty)
     {
         static char whitelist[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890_/";

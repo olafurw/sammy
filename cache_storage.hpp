@@ -3,6 +3,7 @@
 
 #include <mutex>
 #include <map>
+#include "log.hpp"
 #include "utils/utils.hpp"
 
 namespace sammy
@@ -39,6 +40,7 @@ private:
     void create_cache(const std::string& domain, const std::string& path, const std::string& data, time_t expiration);
 
     std::map<std::string, std::map<std::string, std::unique_ptr<cache>>> m_cache;
+    std::unique_ptr<sammy::log> m_log;
 };
 
 }

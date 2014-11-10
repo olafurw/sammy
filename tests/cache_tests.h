@@ -4,9 +4,10 @@
 #include <limits.h>
 
 #include "../utils/utils.hpp"
+#include "../log.hpp"
 #include "../cache_storage.hpp"
 
-class cacge_tests : public CxxTest::TestSuite
+class cache_tests : public CxxTest::TestSuite
 {
 public:
     void test_add_cache()

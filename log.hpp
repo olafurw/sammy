@@ -27,6 +27,8 @@ public:
     log();
 
     void info(const std::string& data);
+    void warning(const std::string& data);
+    void debug(const std::string& data);
     void error(const std::string& data);
 
 private:

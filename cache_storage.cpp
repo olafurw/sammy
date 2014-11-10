@@ -33,6 +33,7 @@ void cache::update(const std::string& data, time_t expiration)
 
 cache_storage::cache_storage()
 {
+    m_log = std::unique_ptr<sammy::log>(new sammy::log());
 }
 
 bool cache_storage::is_expired(const std::string& domain, const std::string& path) const
@@ -60,6 +61,8 @@ std::string cache_storage::get_data(const std::string& domain, const std::string
         return "";
     }
 
+    m_log->debug("Fetch: " + domain + path);
+
     return m_cache.at(domain).at(path)->get_data();
 }
 
@@ -67,6 +70,7 @@ void cache_storage::create_cache(const std::string& domain, const std::string& p
 {
     if(m_cache.count(domain) > 0 && m_cache[domain].count(path) > 0)
     {
+        m_cache[domain][path]->update(data, expiration);
         return;
     }
 
@@ -78,15 +82,21 @@ void cache_storage::set(const std::string& domain, const std::string& path, cons
     if(m_cache.count(domain) == 0)
     {
         create_cache(domain, path, data, expiration);
+
+        m_log->debug("Domain-cache-miss: " + domain + path);
         return;
     }
     else if(m_cache.at(domain).count(path) == 0)
     {
         create_cache(domain, path, data, expiration);
+
+        m_log->debug("Cache-miss: " + domain + path);
         return;
     }
 
     m_cache[domain][path]->update(data, expiration);
+
+    m_log->debug("Cache-update: " + domain + path);
 }
 
 }

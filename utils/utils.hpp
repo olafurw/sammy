@@ -49,6 +49,8 @@ namespace utils
     std::string file_to_string(const char* filename);
     std::vector<std::string> file_to_array(const char* filename, char token = '\n');
     
+    void write_to_file(const char* filename, const std::string& content);
+
     std::string sanitize_string(const std::string dirty);
     std::string program_to_string(const std::string& run, const std::string& argument = "");
 

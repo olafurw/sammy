@@ -29,15 +29,15 @@ request::request(const int id, const std::string& r)
     for(unsigned int i = 1; i < m_request_lines.size(); ++i)
     {
         // Find the line type of the request, to route it to the correct parse function
-        std::string& current_line = m_request_lines.at(i);
-        auto colon_pos = current_line.find(": ");
+        const auto& current_line = m_request_lines.at(i);
+        const auto colon_pos = current_line.find(": ");
         if(colon_pos == std::string::npos)
         {
             continue;
         }
 
-        std::string line_type = current_line.substr(0, colon_pos);
-        std::string line_data = current_line.substr(colon_pos + 2);
+        const std::string line_type = current_line.substr(0, colon_pos);
+        const std::string line_data = current_line.substr(colon_pos + 2);
 
         if(line_type == "Host")
         {

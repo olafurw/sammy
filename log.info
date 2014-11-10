@@ -1,0 +1,41 @@
+[I] 2014-11-10 23:05:57 Starting server.
+[I] 2014-11-10 23:05:57 Server started
+[I] 2014-11-10 23:05:59  : www.cznp.com : GET : / : 200 : 3203 : http://www.cznp.com:8080/projects
+[I] 2014-11-10 23:05:59  : www.cznp.com : GET : /static/css/main.css : 200 : 748 : http://www.cznp.com:8080/
+[I] 2014-11-10 23:05:59  : www.cznp.com : GET : /static/css/bootstrap.css : 200 : 103515 : http://www.cznp.com:8080/
+[I] 2014-11-10 23:05:59  : www.cznp.com : GET : /static/css/normalize.css : 200 : 2950 : http://www.cznp.com:8080/
+[I] 2014-11-10 23:05:59  : www.cznp.com : GET : /static/js/main.js : 200 : 459 : http://www.cznp.com:8080/
+[I] 2014-11-10 23:05:59  : www.cznp.com : GET : /static/js/bootstrap.js : 200 : 29559 : http://www.cznp.com:8080/
+[I] 2014-11-10 23:06:00  : www.cznp.com : GET : /projects : 200 : 8923 : http://www.cznp.com:8080/
+[I] 2014-11-10 23:06:00  : www.cznp.com : GET : /static/css/bootstrap.css : 200 : 103515 : http://www.cznp.com:8080/projects
+[I] 2014-11-10 23:06:00  : www.cznp.com : GET : /static/css/main.css : 200 : 748 : http://www.cznp.com:8080/projects
+[I] 2014-11-10 23:06:00  : www.cznp.com : GET : /static/css/normalize.css : 200 : 2950 : http://www.cznp.com:8080/projects
+[I] 2014-11-10 23:06:00  : www.cznp.com : GET : /static/js/bootstrap.js : 200 : 29559 : http://www.cznp.com:8080/projects
+[I] 2014-11-10 23:06:00  : www.cznp.com : GET : /static/js/main.js : 200 : 459 : http://www.cznp.com:8080/projects
+[I] 2014-11-10 23:06:03  : www.cznp.com : GET : /about : 200 : 4545 : http://www.cznp.com:8080/projects
+[I] 2014-11-10 23:06:03  : www.cznp.com : GET : /static/css/normalize.css : 200 : 2950 : http://www.cznp.com:8080/about
+[I] 2014-11-10 23:06:03  : www.cznp.com : GET : /static/css/main.css : 200 : 748 : http://www.cznp.com:8080/about
+[I] 2014-11-10 23:06:03  : www.cznp.com : GET : /static/css/bootstrap.css : 200 : 103515 : http://www.cznp.com:8080/about
+[I] 2014-11-10 23:06:03  : www.cznp.com : GET : /static/js/main.js : 200 : 459 : http://www.cznp.com:8080/about
+[I] 2014-11-10 23:06:03  : www.cznp.com : GET : /static/js/bootstrap.js : 200 : 29559 : http://www.cznp.com:8080/about
+[I] 2014-11-10 23:06:03  : www.cznp.com : GET : /static/img/waage.jpg : 200 : 17612 : http://www.cznp.com:8080/about
+[I] 2014-11-10 23:06:04  : www.cznp.com : GET : / : 200 : 3203 : http://www.cznp.com:8080/about
+[I] 2014-11-10 23:06:04  : www.cznp.com : GET : /static/css/normalize.css : 200 : 2950 : http://www.cznp.com:8080/
+[I] 2014-11-10 23:06:04  : www.cznp.com : GET : /static/css/main.css : 200 : 748 : http://www.cznp.com:8080/
+[I] 2014-11-10 23:06:04  : www.cznp.com : GET : /static/css/bootstrap.css : 200 : 103515 : http://www.cznp.com:8080/
+[I] 2014-11-10 23:06:04  : www.cznp.com : GET : /static/js/bootstrap.js : 200 : 29559 : http://www.cznp.com:8080/
+[I] 2014-11-10 23:06:04  : www.cznp.com : GET : /static/js/main.js : 200 : 459 : http://www.cznp.com:8080/
+[I] 2014-11-10 23:10:27 Starting server.
+[I] 2014-11-10 23:10:27 Server started
+[I] 2014-11-10 23:10:34  : www.cznp.com : GET : / : 200 : 3203 : http://www.cznp.com:8080/about
+[I] 2014-11-10 23:10:34  : www.cznp.com : GET : /static/css/main.css : 200 : 748 : http://www.cznp.com:8080/
+[I] 2014-11-10 23:10:34  : www.cznp.com : GET : /static/css/normalize.css : 200 : 2950 : http://www.cznp.com:8080/
+[I] 2014-11-10 23:10:34  : www.cznp.com : GET : /static/css/bootstrap.css : 200 : 103515 : http://www.cznp.com:8080/
+[I] 2014-11-10 23:10:34  : www.cznp.com : GET : /static/js/main.js : 200 : 459 : http://www.cznp.com:8080/
+[I] 2014-11-10 23:10:34  : www.cznp.com : GET : /static/js/bootstrap.js : 200 : 29559 : http://www.cznp.com:8080/
+[I] 2014-11-10 23:10:38  : www.cznp.com : GET : / : 200 : 3203 : http://www.cznp.com:8080/about
+[I] 2014-11-10 23:10:38  : www.cznp.com : GET : /static/css/normalize.css : 200 : 2950 : http://www.cznp.com:8080/
+[I] 2014-11-10 23:10:38  : www.cznp.com : GET : /static/css/bootstrap.css : 200 : 103515 : http://www.cznp.com:8080/
+[I] 2014-11-10 23:10:38  : www.cznp.com : GET : /static/css/main.css : 200 : 748 : http://www.cznp.com:8080/
+[I] 2014-11-10 23:10:38  : www.cznp.com : GET : /static/js/main.js : 200 : 459 : http://www.cznp.com:8080/
+[I] 2014-11-10 23:10:38  : www.cznp.com : GET : /static/js/bootstrap.js : 200 : 29559 : http://www.cznp.com:8080/
