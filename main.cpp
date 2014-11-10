@@ -15,7 +15,7 @@
 #include "server.hpp"
 
 static const unsigned int READ_SIZE = 8192;
-static const char* PORT_NUMBER = "80";
+static const char* PORT_NUMBER = "8080";
 static const unsigned int CONNECTION_QUEUE_SIZE = 30;
 static const unsigned int MAX_EPOLL_EVENTS = 30;
 
@@ -150,6 +150,9 @@ void set_epoll_interface(int efd, int socket)
 int main(int argc, char *argv[])
 {
     auto log = std::unique_ptr<sammy::log>(new sammy::log());
+    log->info("Starting server.");
+
+    unsigned int request_id = 1;
 
     addrinfo* res = create_addrinfo();
     int sockfd = create_socket(res);
@@ -162,8 +165,6 @@ int main(int argc, char *argv[])
     int efd = create_epoll();
 
     set_epoll_interface(efd, sockfd);
-
-    log->info("Starting server.");
     
     // Init the domain config loading
     auto domain_storage = std::make_shared<sammy::domain_storage>();
@@ -252,13 +253,15 @@ int main(int argc, char *argv[])
                 }
 
                 // Parse request string
-                auto client_request = std::make_shared<sammy::request>(request_str);
+                auto client_request = std::make_shared<sammy::request>(request_id, request_str);
                 if(client_request->errors())
                 {
                     log->error("Request parse error: " + client_request->error_text());
                     close(newsockfd);
                     continue;
                 }
+
+                request_id++;
                 
                 // Load domain configuration
                 std::string response = "";

@@ -2,7 +2,7 @@
 
 namespace sammy
 {
-request::request(const std::string& r)
+request::request(const int id, const std::string& r)
 {
     m_error = 0;
     m_error_text = "";
@@ -10,8 +10,9 @@ request::request(const std::string& r)
     m_method = "";
     m_path = "";
     m_host = "";
+    m_identifier = "";
     m_if_modified_since = 0;
-    m_port = 0;
+    m_port = 80;
 
     m_request_lines = sammy::utils::split_string(r, '\n');
 
@@ -76,6 +77,8 @@ request::request(const std::string& r)
 
         return;
     }
+
+    m_identifier = sammy::utils::sha256(std::to_string(id));
 }
 
 void request::parse_header()
@@ -113,7 +116,15 @@ void request::parse_host(const std::string& host_data)
 
     if(host.size() > 1)
     {
-        m_port = std::stoul(host[1]);
+        try
+        {
+            m_port = std::stoul(host[1]);
+        }
+        catch(...)
+        {
+            m_error = 1;
+            m_error_text = "Error parsing port value:" + host[1];
+        }
     }
 }
 
@@ -507,6 +518,16 @@ std::string request::get_post_data() const
 std::string request::get_referer() const
 {
     return m_referer;
+}
+
+std::string request::get_identifier() const
+{
+    return m_identifier;
+}
+
+unsigned int request::get_port() const
+{
+    return m_port;
 }
 
 time_t request::get_if_modified_since() const

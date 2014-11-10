@@ -13,13 +13,15 @@ namespace sammy
 class request
 {
 public:
-    request(const std::string& request);
+    request(const int id, const std::string& request);
 
     std::string get_host() const;
     std::string get_path() const;
     std::string get_method() const;
     std::string get_post_data() const;
     std::string get_referer() const;
+    std::string get_identifier() const;
+    unsigned int get_port() const;
     time_t get_if_modified_since() const;
 
     bool errors() const;
@@ -43,6 +45,7 @@ private:
     std::string m_host;
     std::string m_post_data;
     std::string m_referer;
+    std::string m_identifier;
     unsigned int m_port;
     time_t m_if_modified_since;
     std::map<std::string, std::string> m_cookies;

@@ -17,7 +17,7 @@ Content-Length: length
 
 licenseID=string&content=string&/paramsXML=string)";
 
-        sammy::request r(req);
+        sammy::request r(1, req);
 
         TS_ASSERT_EQUALS("POST", r.get_method());
         TS_ASSERT_EQUALS("api.opencalais.com", r.get_host());
@@ -37,7 +37,7 @@ Accept-Language: de,en;q=0.7,en-us;q=0.3
 Referer: http://web-sniffer.net/
 )";
 
-        sammy::request r(req);
+        sammy::request r(1, req);
 
         TS_ASSERT_EQUALS("GET", r.get_method());
         TS_ASSERT_EQUALS("www.google.com", r.get_host());
@@ -51,7 +51,7 @@ Host: www.google.com
 If-Modified-Since: Sat, 29 Oct 1994 19:43:31 GMT
 )";
 
-        sammy::request r(req);
+        sammy::request r(1, req);
 
         TS_ASSERT_EQUALS(false, r.errors());
 
@@ -67,7 +67,7 @@ Host: www.google.com
 If-Modified-Since: Sat, 32 Oct 1994 19:43:31 GMT
 )";
 
-        sammy::request r(req);
+        sammy::request r(1, req);
 
         TS_ASSERT_EQUALS(true, r.errors());
     }
@@ -79,7 +79,7 @@ Host: www.google.com
 If-Modified-Since: Sat, 01 Xxx 1994 19:43:31 GMT
 )";
 
-        sammy::request r(req);
+        sammy::request r(1, req);
 
         TS_ASSERT_EQUALS(true, r.errors());
     }
@@ -91,7 +91,7 @@ Host: www.google.com
 If-Modified-Since: Sat, 01 Oct 19X9 19:43:31 GMT
 )";
 
-        sammy::request r(req);
+        sammy::request r(1, req);
 
         TS_ASSERT_EQUALS(true, r.errors());
     }
@@ -103,7 +103,7 @@ Host: www.google.com
 If-Modified-Since: Sat, 01 Oct 1999 19:43 GMT
 )";
 
-        sammy::request r(req);
+        sammy::request r(1, req);
 
         TS_ASSERT_EQUALS(true, r.errors());
     }
@@ -115,7 +115,7 @@ Host: www.google.com
 If-Modified-Since: Sat, 01 Oct 1999 19:43:31 XXX
 )";
 
-        sammy::request r(req);
+        sammy::request r(1, req);
 
         TS_ASSERT_EQUALS(true, r.errors());
     }
@@ -127,7 +127,7 @@ Host: www.google.com
 If-Modified-Since: Sat, 01 Oct 1999 19:43:31
 )";
 
-        sammy::request r(req);
+        sammy::request r(1, req);
 
         TS_ASSERT_EQUALS(true, r.errors());
     }
@@ -139,10 +139,69 @@ Host: www.google.com
 If-Modified-Since: Mon May  5 12:56:24 2014
 )";
 
-        sammy::request r(req);
+        sammy::request r(1, req);
 
         TS_ASSERT_EQUALS(false, r.errors());
         TS_ASSERT_EQUALS(1399294584, r.get_if_modified_since());
+    }
+
+    void test_port_default()
+    {
+        std::string req = R"(GET / HTTP/1.1
+Host: www.google.com
+)";
+
+        sammy::request r(1, req);
+
+        TS_ASSERT_EQUALS(false, r.errors());
+        TS_ASSERT_EQUALS(80, r.get_port());
+    }
+
+    void test_port_8080()
+    {
+        std::string req = R"(GET / HTTP/1.1
+Host: www.google.com:8080
+)";
+
+        sammy::request r(1, req);
+
+        TS_ASSERT_EQUALS(false, r.errors());
+        TS_ASSERT_EQUALS(8080, r.get_port());
+    }
+
+    void test_port_error()
+    {
+        std::string req = R"(GET / HTTP/1.1
+Host: www.google.com:XXX
+)";
+
+        sammy::request r(1, req);
+
+        TS_ASSERT_EQUALS(true, r.errors());
+    }
+
+    void test_identifier()
+    {
+        std::string req = R"(GET / HTTP/1.1
+Host: www.google.com
+)";
+
+        sammy::request r(1, req);
+
+        TS_ASSERT_EQUALS(false, r.errors());
+        TS_ASSERT_EQUALS("6B86B273FF34FCE19D6B804E0C00000047ADA4EAA22F1D49C01E52DDB7875B4B", r.get_identifier());
+    }
+
+    void test_identifier_error()
+    {
+        std::string req = R"(GETA / HTTP/1.1
+Host: www.google.com
+)";
+
+        sammy::request r(1, req);
+
+        TS_ASSERT_EQUALS(true, r.errors());
+        TS_ASSERT_EQUALS("", r.get_identifier());
     }
 };
 
