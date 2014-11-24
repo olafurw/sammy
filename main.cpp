@@ -15,7 +15,7 @@
 #include "server.hpp"
 
 static const unsigned int READ_SIZE = 8192;
-static const char* PORT_NUMBER = "8080";
+static const char* PORT_NUMBER = "80";
 static const unsigned int CONNECTION_QUEUE_SIZE = 30;
 static const unsigned int MAX_EPOLL_EVENTS = 30;
 

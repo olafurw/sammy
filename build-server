@@ -5,3 +5,8 @@ make;
 make test;
 mv server ..;
 popd;
+rm sammy.info;
+lcov  -d build -c -o sammy.info;
+genhtml -o coverage/ sammy.info;
+rm -rf /home/cznp-com/www/static/coverage/;
+mv coverage/ /home/cznp-com/www/static/;

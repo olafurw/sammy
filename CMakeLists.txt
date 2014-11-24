@@ -3,7 +3,7 @@ project(sammy)
 
 set(CMAKE_C_COMPILER	"gcc")
 set(CMAKE_CXX_COMPILER	"g++")
-set(CMAKE_CXX_FLAGS 	"-g -std=c++11")
+set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS_DEBUG} -Wall -g -O0 -coverage")
 
 add_executable(server 
 	main.cpp 

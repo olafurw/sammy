@@ -117,5 +117,23 @@ public:
         
         TS_ASSERT_EQUALS(gp, p);
     }
+
+    void test_get_hostnames()
+    {
+        sammy::domain d;
+
+        d.add_hostname("cznp.com");
+        d.add_hostname("example.com ");
+        d.add_hostname(" 127.0.0.1 ");
+        d.add_hostname("example.com");
+
+        std::vector<std::string> hostnames = d.get_hostnames();
+
+        TS_ASSERT_EQUALS(3, hostnames.size());
+        TS_ASSERT_EQUALS("cznp.com", hostnames[0]);
+        TS_ASSERT_EQUALS("example.com", hostnames[1]);
+        TS_ASSERT_EQUALS("127.0.0.1", hostnames[2]);
+    }
+
 };
 
